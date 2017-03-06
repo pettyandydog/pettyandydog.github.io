@@ -1,0 +1,916 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="docker," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     
+
+  
+
+
+
+什么是dockerdocker是基于linux内核（涉及cgroup，namespace，以及 AUFS 类的 Union FS 等技术），由go语言开发的，实际上是linux的一个独立和被隔离的进程，也可以称之为容器，其中含义如上鲸鱼船的图标（docker的图标）一样形象，鲸鱼船就像是linux一样，船本身相当于内">
+<meta property="og:type" content="article">
+<meta property="og:title" content="docker学习笔记">
+<meta property="og:url" content="http://pettyandydog.com/2016/07/07/docker/index.html">
+<meta property="og:site_name" content="pettyandydog">
+<meta property="og:description" content="仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     
+
+  
+
+
+
+什么是dockerdocker是基于linux内核（涉及cgroup，namespace，以及 AUFS 类的 Union FS 等技术），由go语言开发的，实际上是linux的一个独立和被隔离的进程，也可以称之为容器，其中含义如上鲸鱼船的图标（docker的图标）一样形象，鲸鱼船就像是linux一样，船本身相当于内">
+<meta property="og:image" content="http://pettyandydog.com/images/docker/16121801.png">
+<meta property="og:image" content="http://pettyandydog.com/images/docker/16121802.png">
+<meta property="og:image" content="http://pettyandydog.com/images/docker/16121803.png">
+<meta property="og:image" content="http://pettyandydog.com/images/docker/16121804.png">
+<meta property="og:image" content="http://pettyandydog.com/images/docker/16121805.png">
+<meta property="og:image" content="http://pettyandydog.com/images/docker/16121806.png">
+<meta property="og:image" content="http://pettyandydog.com/images/docker/16121807.png">
+<meta property="og:image" content="http://pettyandydog.com/images/docker/16121808.png">
+<meta property="og:updated_time" content="2017-03-06T05:45:40.892Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="docker学习笔记">
+<meta name="twitter:description" content="仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     
+
+  
+
+
+
+什么是dockerdocker是基于linux内核（涉及cgroup，namespace，以及 AUFS 类的 Union FS 等技术），由go语言开发的，实际上是linux的一个独立和被隔离的进程，也可以称之为容器，其中含义如上鲸鱼船的图标（docker的图标）一样形象，鲸鱼船就像是linux一样，船本身相当于内">
+<meta name="twitter:image" content="http://pettyandydog.com/images/docker/16121801.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://pettyandydog.com/2016/07/07/docker/"/>
+
+
+
+
+
+  <title> docker学习笔记 | pettyandydog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?0dd4e9ad043e96f01ff3cbd1033c29eb";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">pettyandydog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            文章
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://pettyandydog.com/2016/07/07/docker/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="andy">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head_images/head.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="pettyandydog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                docker学习笔记
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-07-07T00:00:00+08:00">
+                2016-07-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/后端/" itemprop="url" rel="index">
+                    <span itemprop="name">后端</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/07/07/docker/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/07/07/docker/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     </p>
+</blockquote>
+<div></div>  
+
+<center><img src="/images/docker/16121801.png" alt=""></center>
+
+<h2 id="什么是docker"><a href="#什么是docker" class="headerlink" title="什么是docker"></a>什么是docker</h2><p>docker是基于linux内核（涉及cgroup，namespace，以及 AUFS 类的 Union FS 等技术），由go语言开发的，实际上是linux的一个独立和被隔离的进程，也可以称之为容器，其中含义如上鲸鱼船的图标（docker的图标）一样形象，鲸鱼船就像是linux一样，船本身相当于内核，船上可以载重的空间相当于文件存储系统，而在船上的箱子就是docker，他只是运行在linux内核上，箱子内部的空间相当于小型的文件存储系统，自成一体，不会受到外部空间（宿主）的影响，可以随时搬到另一艘船(内核)进行运输</p>
+<h2 id="docker和传统虚拟机的区别"><a href="#docker和传统虚拟机的区别" class="headerlink" title="docker和传统虚拟机的区别"></a>docker和传统虚拟机的区别</h2><p>docker属于一种轻量级的虚拟机，那它比传统的虚拟机相比有什么区别</p>
+<p><img src="/images/docker/16121802.png" alt=""></p>
+<p>由上图可知，传统的虚拟机运行了一个完整的Guest OS(操作系统)，通过虚拟技术运行在宿主上，而docker上没有运行一个完整的操作系统，它只是一个容器，由docker引擎运行在宿主上，本质上来讲传统的虚拟机是在宿主之上虚拟出一套硬件，独立运行，而docker是直接运行在宿主的内核上，共享硬件资源，所以它的优势很明显</p>
+<ul>
+<li>资源利用上更高效(接近宿主)</li>
+<li>运行速度高(不需要另外一个完整的操作系统)</li>
+<li>可移植性高(共享内核，可以在其他的宿主上运行)</li>
+</ul>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>docker支持很多主流平台的安装，包括windows，mac，linux各大发行版，在<a href="https://docs.docker.com" title="官网" target="_blank" rel="external">官网</a>上写的很详细，这里说安装的一些注意点</p>
+<p>docker对于安装环境有两个很重要的要求</p>
+<ul>
+<li>宿主是linux的64位系统</li>
+<li>宿主的内核版本不能低于3.10</li>
+</ul>
+<p>如果不是linux64位的系统，那只有更换成64位的，内核版本可以通过<code>uname -r</code>shell命令查看你系统的内核版本，如果内核版本过低，通过<code>sudo apt-get install -y --install-recommends linux-generic-lts-xenial</code>shell命令去升级内核，这样就可以开始docker的安装了</p>
+<p>如果在使用脚本安装的时候出错，可能是由于国内的防火墙的原因，可以使用国内云服务提供的修改版本</p>
+<p>阿里云版本：<br><figure class="highlight markdown"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">curl -sSL http://acs-public-mirror.oss-cn-hangzhou.aliyuncs.com/docker-engine/internet | sh -</div></pre></td></tr></table></figure></p>
+<p>DaoCloud版本：<br><figure class="highlight markdown"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">curl -sSL https://get.daocloud.io/docker | sh</div></pre></td></tr></table></figure></p>
+<p>如果你的系统内核缺少AUFS内核驱动（这是docker最佳实践的内核）的话，可执行以下指令安装<br><figure class="highlight markdown"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo apt-get install linux-image-extra-$(uname -r) linux-image-extra-virtual</div></pre></td></tr></table></figure></p>
+<p>如果官网的GPG密钥地址无法识别，可以执行如下指定进行安装<br> <figure class="highlight markdown"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E</div><div class="line">89F3A912897C070ADBF76221572C52609D</div></pre></td></tr></table></figure></p>
+<p>如果你已经安装好了docker引擎，进行docker服务的启动，linux旧版本(CentOS 7之前，Ubuntu 12.04/14.04,Debian 7 Wheezy)的启动方式：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo service docker start</div></pre></td></tr></table></figure>
+<p>如果是高版本(CentOS 7之后，Ubuntu 16.04,Debian 8 Jessie/Stretch)的启动方式：<br><figure class="highlight markdown"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo systemctl enable docker</div><div class="line">sudo systemctl start docker</div></pre></td></tr></table></figure></p>
+<h2 id="docker核心：镜像，容器，仓库"><a href="#docker核心：镜像，容器，仓库" class="headerlink" title="docker核心：镜像，容器，仓库"></a>docker核心：镜像，容器，仓库</h2><p>开始docker的第一个例子hello world</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker run hello-world</div></pre></td></tr></table></figure>
+<p>以上指令是运行一个名为‘hello-world’的镜像，分解成下面的操作</p>
+<p><img src="/images/docker/16121803.png" alt=""></p>
+<p>运行完成会生成一个容器，利用<code>docker ps</code> 指令就可以查询你所生成的容器</p>
+<p>由上可知，运行hello-world镜像可以分解成两步：</p>
+<ol>
+<li>从本地镜像库查找，如果匹配则运行 </li>
+<li>如果本地镜像库没有找到，则会从官方维护的镜像库开始查找进行，如果匹配则运行，不匹配则报错</li>
+</ol>
+<p>上面无论是本地镜像库，还是官方镜像库都是存储镜像的仓库，其实对于镜像，容器和仓库这三者，如果基于JAVA这种面向对象的语言来理解，镜像相当于一个声明类，而容器相当于一个实例对象，仓库就是JDK,而docker引擎就是等于JVM，当然这不是很严谨，但是很形象</p>
+<h3 id="镜像"><a href="#镜像" class="headerlink" title="镜像"></a>镜像</h3><p>镜像是docker一个很重要的组件，通过<code>docker images</code>指令来查看所有的镜像，如下图所示</p>
+<p><img src="/images/docker/16121804.png" alt=""></p>
+<p>由上可知，镜像由五个属性组成：</p>
+<ul>
+<li>REPOSITORY：镜像实体，一般来讲名为‘hello-world’此类镜像是有官方维护的，‘andy/hello-world’此类镜像是由用户维护的，andy是用户名</li>
+<li>TAG：标签，对于软件而言，理解也可以成版本，laster表示是该镜像的最终版本</li>
+<li>IMAGE ID：镜像的唯一标识</li>
+<li>CREATED：指镜像的创建时间</li>
+<li>VIRTUAL SIZE：虚拟大小，并不是实际的大小，跟docker的分层存储有关</li>
+</ul>
+<p>利用<code>docker pull [选项] [Docker Registry地址]&lt;仓库名&gt;:&lt;标签&gt;</code>命令来加载镜像，如果没有Docker Registry地址，则默认会加载官方的镜像，标签如果没有指定，则默认下载laster版本</p>
+<p>也可以利用<code>docker rmi &lt;IMAGE ID&gt;</code>指令去删除指定的镜像，也可以使用<code>docker rmi $(docker iamges -q)</code>去删除所有的镜像</p>
+<h3 id="容器"><a href="#容器" class="headerlink" title="容器"></a>容器</h3><p>简单的说，容器是一组独立运行的应用，由docker引擎提供它的上下文，镜像提供内容，利用<br><code>docker run</code> 指令可以新建和运行容器，如下图所示</p>
+<p><img src="/images/docker/16121805.png" alt=""></p>
+<p>利用<code>docker ps -a</code>指令来查看你所有的容器，如下图所示</p>
+<p><img src="/images/docker/16121806.png" alt=""></p>
+<p>由上可知，容器由七项属性组成</p>
+<ul>
+<li>CONTAINER ID：容器唯一标识</li>
+<li>IMAGE：所依赖的镜像</li>
+<li>COMMAND：运行容器的命令</li>
+<li>CREATE：容器的创建时间</li>
+<li>STATUS：容器的状态</li>
+<li>PORTS：所暴露的端口</li>
+<li>NAMES：容器名</li>
+</ul>
+<p>利用<code>docker stop &lt;container id&gt;</code> 指令停止指定容器运行，也可以使用<code>docker stop $(docker ps -a)</code>停止所有的容器如果你想启动它，可以利用<code>docker start &lt;container id&gt;</code>命令，如果你还想重新启动，可以利用<code>docker restart &lt;container id&gt;</code>,如果你想删除一个容器,可以使用<code>docker rm &lt;container id&gt;</code>，这跟删除镜像有点相似，rm指令是删除容器的，rmi指令是删除镜像的</p>
+<h3 id="仓库"><a href="#仓库" class="headerlink" title="仓库"></a>仓库</h3><p>仓库是存放镜像的地方，官方维护了一个类似于github的<a href="https://hub.docker.com/" title="dockerhub" target="_blank" rel="external">dockerhub</a>公共仓库来存放镜像，它的设计思想跟github很像，在这里你可以托管你的镜像，你可以点击<a href="https://hub.docker.com/" title="dockerhub" target="_blank" rel="external">dockerhub</a>注册一个dockerhub的账户，然后在终端利用<code>docker login</code>命令输入你的用户名，密码和邮箱进行登录，在本地用户目录就会生成一个.dockercfg文件来保存用户信息，可以利用<code>docker search &lt;image&gt;</code>命令查询你所要镜像的信息，如下图所示</p>
+<p><img src="/images/docker/16121807.png" alt=""></p>
+<p>由上可知，你所查询的该镜像在公共仓库的信息，以下五项组成</p>
+<ul>
+<li>NAME：相关镜像的名称</li>
+<li>DESCRIPTION：相关镜像的描述</li>
+<li>STARS：喜欢程度，表示该镜像的受欢迎程度</li>
+<li>OFFICIAL：是否是官方的镜像</li>
+<li>AUTOMATED：是否是自动创建的镜像</li>
+</ul>
+<p>然后使用<code>docker pull &lt;image&gt;</code>命令加载公共仓库的镜像到本地，当然如果想要将自己的镜像推送到公共仓库上只需要两步</p>
+<ol>
+<li>将你自己的镜像打上标签：<code>docker tag &lt;IMAGE ID&gt; &lt;USERNAME&gt;/&lt;IAMGE NAME&gt;:&lt;TAG&gt;</code>.</li>
+<li>推送到公共仓库：<code>docker push &lt;USERNAME&gt;/&lt;REPOSITORY&gt;</code>.</li>
+</ol>
+<h2 id="自定义镜像：dockerfile"><a href="#自定义镜像：dockerfile" class="headerlink" title="自定义镜像：dockerfile"></a>自定义镜像：dockerfile</h2><p>现实中，官方的镜像是根本不能满足我们的需求的，所以我们需要自己去自定义镜像，首先我们需要创建dockerfile文件</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">mkdir myimage</div><div class="line">cd myimage</div><div class="line">touch Dockerfile</div></pre></td></tr></table></figure>
+<p>现在可以开始来构建一条鲸鱼的镜像，首先用文本编辑器打开Dockerfile，编辑以下内容<br><figure class="highlight markdown"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">FROM docker/whalesay:latest</div><div class="line">RUN apt-get -y update &amp;&amp; apt-get install -y fortunes</div><div class="line">CMD /usr/games/fortune -a | cowsay</div></pre></td></tr></table></figure></p>
+<p>Dockerfile内容一条指令会加载一层镜像，以下会分成三步执行</p>
+<ol>
+<li>加载鲸鱼的镜像</li>
+<li>更新软件源，并下载安装fortunes应用</li>
+<li>运行这个应用</li>
+</ol>
+<p>现在在该目录下利用<code>docker build -t docker-whale .</code>指令就完成了自己的镜像构建了，这里要注意一点，在构建的时候，镜像名后会跟随一个<code>.</code>，这个往往会被忽略掉，这表示运行该镜像的上下文，不是Dockerfile文件的位置，Dockerfile里所运行的上下文都是基于这个定义的，你自己也可以定义你想要的上下文，比如使用<code>/usr/local</code>替换<code>.</code><br>最后使用<code>docker run docker-whale</code>指令运行该镜像，如下图所示：</p>
+<p><img src="/images/docker/16121808.png" alt=""></p>
+<p>这就是一个基于官网的例子的自定义镜像，自定义镜像让docker更加灵活，更加强大，让就像编程一样，拥有无限魔力</p>
+<p>这里列举自定义镜像最佳实践和建议</p>
+<ul>
+<li><p>Dockerfile的定义尽量是简短的，合理而又简短的配置，一站化停止和销毁</p>
+</li>
+<li><p>每个Dockerfile目录尽量只有Dockerfile文件，如果有其他文件，在构建的时候，可以新建一个.dockerignore的文件到该目录进行排除其他不必要的文件</p>
+</li>
+<li><p>尽量避免安装不必要的包，即使他是很有用的</p>
+</li>
+<li><p>多数情况下，一个容器只是运行一个进程，这样能够更容易扩展和重复使用(使用容器连接)</p>
+</li>
+<li><p>减少构建层数来减少构建的复杂度，使用‘\’和连接符‘&amp;&amp;’来进行一次性构建</p>
+</li>
+</ul>
+<p>这里再列举一些常用的Dockerfile指令</p>
+<ul>
+<li>LABEL<br>记录你的Dockerfile的信息 比如：LABEL version=”0.0.1-beta”</li>
+<li>RUN<br>运行你的应用程序或者是指令 比如：RUN apt-get update &amp;&amp; apt-get install -y curl<br>注意：如果以上命令分成两层写，会导致获取缓存内以前的版本，导致安装无效</li>
+<li>CMD<br>运行该镜像包含的软件 比如：CMD [“sh”,”-s”“server tomcat start”]</li>
+<li>ENTRYPOINT<br>运行你的应用程序和指令，或者是脚本 ENTRYPOINT [“server”]<br>注意：如果指定了ENTRYPOINT，那么后面的CMD都变成了它的参数</li>
+<li>EXPOSE<br>指定该容器所监听连接的默认端口，如果docker run -p指定端口，则会覆盖该端口，比如EXPOSE 8080</li>
+<li>ENV<br>更新或添加你当前容器的环境变量 比如：ENV PATH /user/local/nginx/bin:$PATH</li>
+<li>ARG<br>构建临时的环境变量，在容器运行时不会存储这些环境变量 比如：ARG NAME [=jack]</li>
+<li>COPY<br>本地文件复制到容器 比如：COPY usr/local/ /usr/local/</li>
+<li>ADD<br>也有复制的功能，但在其上多了远程url下载，和自动解压包的功能 比如：ADD <a href="http://source.com/a.tar" target="_blank" rel="external">http://source.com/a.tar</a> /usr/local (先下载url的资源，再解压到目标目录中)<br>注意：推荐使用COPY，因为他的目标更明确，ADD相当于使用了多层的RUN，还不如使用RUN加连接符</li>
+<li>VOLUME<br>指定数据存储区，使容器和宿主进行映射存储 比如：VOLUME /data 然后使用docker run -dv mydata:/data 命令指定宿主的mydata作为容器中data目录的存储区</li>
+<li>WORKDIR<br>指定当前目录(目录必须存在，应使用绝对路径)，比如： WORKDIR  /usr/local/  </li>
+<li>USER<br>指定当前用户 比如：USER docker</li>
+<li>ONBUILD<br>指定当前的镜像后面的指令不会马上构建，只有在别的镜像引用时才构建加载，适合一些基础的组件构建 </li>
+</ul>
+<p><strong>总结</strong>：这是一篇docker的学习笔记，docker很强大，特别在云服务平台发挥很大的重要，现在在很多集群管理也使用docker来构建，学习docker也会有很大的提升。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/docker/" rel="tag"># docker</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/06/06/cas/" rel="next" title="原子操作-CAS">
+                <i class="fa fa-chevron-left"></i> 原子操作-CAS
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/08/22/exports_module.exports/" rel="prev" title="exports和module.exports的区别">
+                exports和module.exports的区别 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/07/07/docker/"
+           data-title="docker学习笔记" data-url="http://pettyandydog.com/2016/07/07/docker/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/head_images/head.jpg"
+               alt="andy" />
+          <p class="site-author-name" itemprop="name">andy</p>
+           
+              <p class="site-description motion-element" itemprop="description">code and life for simpleness and happiness</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/pettyandydog" target="_blank" title="github">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  github
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://stackoverflow.com/users/6618615/andyzhang" target="_blank" title="stackoverflow">
+                  
+                    <i class="fa fa-fw fa-stackoverflow"></i>
+                  
+                  stackoverflow
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是docker"><span class="nav-number">1.</span> <span class="nav-text">什么是docker</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#docker和传统虚拟机的区别"><span class="nav-number">2.</span> <span class="nav-text">docker和传统虚拟机的区别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装"><span class="nav-number">3.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#docker核心：镜像，容器，仓库"><span class="nav-number">4.</span> <span class="nav-text">docker核心：镜像，容器，仓库</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#镜像"><span class="nav-number">4.1.</span> <span class="nav-text">镜像</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#容器"><span class="nav-number">4.2.</span> <span class="nav-text">容器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#仓库"><span class="nav-number">4.3.</span> <span class="nav-text">仓库</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#自定义镜像：dockerfile"><span class="nav-number">5.</span> <span class="nav-text">自定义镜像：dockerfile</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">andy</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"pettyandydog"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+</body>
+</html>

@@ -1,0 +1,820 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="neo4j,batch import," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     
+
+ 
+
+
+概述Neo4j是一种强大的，可扩展的和高性能的图形数据库，由边，属性和节点组成，是用来描述节点与节点之间的关系，由位于美国旧金山的Neo技术公司进行开发和维护，它属于NoSql的范围内，在一些社交的项目中处理人与人或物之间的关系挥发这巨大的作用，以下列举它的一些特点
+
+支持ACID事务
+高可用性
+可扩展到数十亿的节点和关">
+<meta property="og:type" content="article">
+<meta property="og:title" content="neo4j的导入方案">
+<meta property="og:url" content="http://pettyandydog.com/2016/09/27/neo4j-import/index.html">
+<meta property="og:site_name" content="pettyandydog">
+<meta property="og:description" content="仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     
+
+ 
+
+
+概述Neo4j是一种强大的，可扩展的和高性能的图形数据库，由边，属性和节点组成，是用来描述节点与节点之间的关系，由位于美国旧金山的Neo技术公司进行开发和维护，它属于NoSql的范围内，在一些社交的项目中处理人与人或物之间的关系挥发这巨大的作用，以下列举它的一些特点
+
+支持ACID事务
+高可用性
+可扩展到数十亿的节点和关">
+<meta property="og:updated_time" content="2017-03-06T05:45:03.952Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="neo4j的导入方案">
+<meta name="twitter:description" content="仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     
+
+ 
+
+
+概述Neo4j是一种强大的，可扩展的和高性能的图形数据库，由边，属性和节点组成，是用来描述节点与节点之间的关系，由位于美国旧金山的Neo技术公司进行开发和维护，它属于NoSql的范围内，在一些社交的项目中处理人与人或物之间的关系挥发这巨大的作用，以下列举它的一些特点
+
+支持ACID事务
+高可用性
+可扩展到数十亿的节点和关">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://pettyandydog.com/2016/09/27/neo4j-import/"/>
+
+
+
+
+
+  <title> neo4j的导入方案 | pettyandydog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?0dd4e9ad043e96f01ff3cbd1033c29eb";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">pettyandydog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            文章
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://pettyandydog.com/2016/09/27/neo4j-import/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="andy">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head_images/head.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="pettyandydog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                neo4j的导入方案
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-09-27T00:00:00+08:00">
+                2016-09-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/09/27/neo4j-import/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/27/neo4j-import/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     </p>
+</blockquote>
+<div></div> 
+
+
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>Neo4j是一种强大的，可扩展的和高性能的图形数据库，由边，属性和节点组成，是用来描述节点与节点之间的关系，由位于美国旧金山的Neo技术公司进行开发和维护，它属于NoSql的范围内，在一些社交的项目中处理人与人或物之间的关系挥发这巨大的作用，以下列举它的一些特点</p>
+<ul>
+<li>支持ACID事务</li>
+<li>高可用性</li>
+<li>可扩展到数十亿的节点和关系</li>
+<li>高效且快速的遍历查询(图的遍历)</li>
+<li>强大的结构化查询语言Cypher</li>
+</ul>
+<h2 id="导入方案"><a href="#导入方案" class="headerlink" title="导入方案"></a>导入方案</h2><p>如果你想选择Neo4j作为你的处理关系的数据库，首先处理的问题就是导入外部数据，将MySQL，Oracle或者PostgreSQL的关于用户的关系数据导入Neo4j中，这里有两种导入数据的方式：</p>
+<h3 id="1-LOAD-CSV"><a href="#1-LOAD-CSV" class="headerlink" title="1. LOAD CSV"></a>1. LOAD CSV</h3><p>LOAD CSV是Cypher语言的指令，是将csv文件中的属性插入Neo4j中，首先先将原数据库的数据导出成csv文件，以电影信息为例，导出CSV文件如下：</p>
+<p><strong>movies.csv</strong>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">id,title,country,year</div><div class="line">1,Wall Street,USA,1987</div><div class="line">2,The American President,USA,1995</div><div class="line">3,The Shawshank Redemption,USA,1994</div></pre></td></tr></table></figure></p>
+<p>Neo4j提供了一个WEB端的客户端系统，利用可视化的方式展示节点与节点的关系，在上面可以利用Cypher语言对数据进行操作，代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">LOAD CSV WITH HEADERS FROM &quot;CSV地址&quot; AS csvLine</div><div class="line">MERGE (country:Country &#123; name: csvLine.country &#125;)</div><div class="line">CREATE (movie:Movie &#123; id: toInt(csvLine.id), title: csvLine.title, year:toInt(csvLine.year)&#125;)</div><div class="line">CREATE (movie)-[:MADE_IN]-&gt;(country)</div></pre></td></tr></table></figure></p>
+<p>上面的意思是创建country和movie节点，然后将country和movie建立MADE_IN的关系，这样就将csv的数据导入了Neo4j中了，LOAD CSV指令导入的形式只是相当于多个CRATE指令，通过繁杂的JAVA程序向硬盘写数据，所以只是适于小数据量的导入</p>
+<p>注意：csv中属性的数据都是String类型的，Neo4j是由JAVA写的，每个属性是有类型的，所以内置了toInt这样的类型转换方法</p>
+<h3 id="2-neo4j-import"><a href="#2-neo4j-import" class="headerlink" title="2. neo4j-import"></a>2. neo4j-import</h3><p>neo4j内置了一个批量导入的脚本，存储在/BIN目录下的neo4j-import.bat,它直接在数据库存储文件目录中生成你所需创建节点和关系文件，所以它的限制也很多，第一点是导入前，还没有创建数据库，讲白了只能是第一次导入才有效，第二点是节点和关系要分开导入就是要额外进行导出存储关系的csv，第三点是如果不进行强制指定类型，每个节点(包括不同类型的节点)的id不能相同，</p>
+<p><strong>movie.csv</strong>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">id,title,year</div><div class="line">1,Wall Street,1987</div><div class="line">2,The American President,1995</div><div class="line">3,The Shawshank Redemption,1994</div></pre></td></tr></table></figure></p>
+<p><strong>country.csv</strong>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">id,name</div><div class="line">4,USA</div><div class="line">5,CHINA</div><div class="line">6,UK</div></pre></td></tr></table></figure></p>
+<p><strong>MADE_IN.csv</strong>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">:START_ID,:END_ID</div><div class="line">1,4</div><div class="line">2,5</div><div class="line">3,6</div></pre></td></tr></table></figure></p>
+<p>（1）由于配置文件的默认读取的位置在import中，所以导出的csv格式的文件要存储在neo4j存储目录下的import目录<br>（2）使用neo4j-import工具,在neo4j的bin目录下执行以下的指令<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">neo4j-import --into ../data/databases/graph.db --id-type string --nodes:movie ../import/movie.csv --nodes:country ../import/country.csv  --relationships:MADE_IN ../import/MADE_IN.csv --multiline-fields=true --skip-bad-relationships=true --bad-tolerance=2000</div></pre></td></tr></table></figure></p>
+<p>这样就完成了neo4j的批量导入了，大约1000万的数据量，十几分钟就完成了</p>
+<p>注意：在导入过程中有可能遇到如下错误<br>（1）<code>./data/databases/graph.db already contains a database</code>错误，表示graph.db已经包含了一个数据库，需要将其删除才能导入<br>（2）<code>Duplicate input ids that would otherwise clash can be put into separate id space</code>，表示有ID重复，按提示查询<br>（3）<code>panic called，so exiting</code>表示出现特殊符号，可检查列中可含有特殊符号</p>
+<p>–multiline-fields=true :多行导入<br>–skip-bad-relationships=true：过滤错误的关系不导入，可以在log中查看<br>–bad-tolerance=2000：错误的最大限制在2000个</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/neo4j/" rel="tag"># neo4j</a>
+          
+            <a href="/tags/batch-import/" rel="tag"># batch import</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/22/Least_recently_used/" rel="next" title="LRU(Least recently used-最久未使用算法)">
+                <i class="fa fa-chevron-left"></i> LRU(Least recently used-最久未使用算法)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/10/05/proxy/" rel="prev" title="动态代理">
+                动态代理 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/09/27/neo4j-import/"
+           data-title="neo4j的导入方案" data-url="http://pettyandydog.com/2016/09/27/neo4j-import/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/head_images/head.jpg"
+               alt="andy" />
+          <p class="site-author-name" itemprop="name">andy</p>
+           
+              <p class="site-description motion-element" itemprop="description">code and life for simpleness and happiness</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/pettyandydog" target="_blank" title="github">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  github
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://stackoverflow.com/users/6618615/andyzhang" target="_blank" title="stackoverflow">
+                  
+                    <i class="fa fa-fw fa-stackoverflow"></i>
+                  
+                  stackoverflow
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#概述"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#导入方案"><span class="nav-number">2.</span> <span class="nav-text">导入方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-LOAD-CSV"><span class="nav-number">2.1.</span> <span class="nav-text">1. LOAD CSV</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-neo4j-import"><span class="nav-number">2.2.</span> <span class="nav-text">2. neo4j-import</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">andy</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"pettyandydog"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+</body>
+</html>

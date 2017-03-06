@@ -1,0 +1,806 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="LRU," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     
+
+  
+
+
+现在的数据越来越多的被存储，对于数据库来讲，访问大数据量会变得越来越慢，于是为了提高访问的速度，将小范围区域的数据存储在一个高速缓冲存储器，以至于不会每次去读取磁盘，而是在内存中直接访问数据。内存存储的代价远远的大于磁盘存储的价值，所以缓存很小，并不能存储你所有的数据，所以你不得不保存你所认为重要的数据(使用次数较多的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LRU(Least recently used-最久未使用算法)">
+<meta property="og:url" content="http://pettyandydog.com/2016/09/22/Least_recently_used/index.html">
+<meta property="og:site_name" content="pettyandydog">
+<meta property="og:description" content="仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     
+
+  
+
+
+现在的数据越来越多的被存储，对于数据库来讲，访问大数据量会变得越来越慢，于是为了提高访问的速度，将小范围区域的数据存储在一个高速缓冲存储器，以至于不会每次去读取磁盘，而是在内存中直接访问数据。内存存储的代价远远的大于磁盘存储的价值，所以缓存很小，并不能存储你所有的数据，所以你不得不保存你所认为重要的数据(使用次数较多的">
+<meta property="og:image" content="http://pettyandydog.com/images/lru/16093001.png">
+<meta property="og:image" content="http://pettyandydog.com/images/lru/16093002.png">
+<meta property="og:updated_time" content="2017-03-06T05:58:00.018Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="LRU(Least recently used-最久未使用算法)">
+<meta name="twitter:description" content="仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     
+
+  
+
+
+现在的数据越来越多的被存储，对于数据库来讲，访问大数据量会变得越来越慢，于是为了提高访问的速度，将小范围区域的数据存储在一个高速缓冲存储器，以至于不会每次去读取磁盘，而是在内存中直接访问数据。内存存储的代价远远的大于磁盘存储的价值，所以缓存很小，并不能存储你所有的数据，所以你不得不保存你所认为重要的数据(使用次数较多的">
+<meta name="twitter:image" content="http://pettyandydog.com/images/lru/16093001.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://pettyandydog.com/2016/09/22/Least_recently_used/"/>
+
+
+
+
+
+  <title> LRU(Least recently used-最久未使用算法) | pettyandydog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?0dd4e9ad043e96f01ff3cbd1033c29eb";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">pettyandydog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            文章
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://pettyandydog.com/2016/09/22/Least_recently_used/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="andy">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head_images/head.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="pettyandydog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                LRU(Least recently used-最久未使用算法)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-09-22T00:00:00+08:00">
+                2016-09-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/后端/" itemprop="url" rel="index">
+                    <span itemprop="name">后端</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/09/22/Least_recently_used/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/22/Least_recently_used/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     </p>
+</blockquote>
+<div></div>  
+
+<blockquote>
+<p>现在的数据越来越多的被存储，对于数据库来讲，访问大数据量会变得越来越慢，于是为了提高访问的速度，将小范围区域的数据存储在一个高速缓冲存储器，以至于不会每次去读取磁盘，而是在内存中直接访问数据。<br>内存存储的代价远远的大于磁盘存储的价值，所以缓存很小，并不能存储你所有的数据，所以你不得不保存你所认为重要的数据(使用次数较多的数据)，那就要淘汰最少使用的数据，如何从缓存中淘汰最少使用的数据，一个简单而且有效的算法，最近最少使用算法LRU.</p>
+</blockquote>
+<h3 id="LRU原理"><a href="#LRU原理" class="headerlink" title="LRU原理"></a>LRU原理</h3><p>最久未使用算法（LRU）：最久没有访问的内容作为替换对象 —– 来自wiki</p>
+<p>LRU翻译过来就是最久未使用，当缓存到达一定的阀值时，剔除掉最久未使用的数据，通俗来讲，比如一个缓存只能缓存10000条数据，10000条就是这个缓存的阀值，小于10000条时可以随意添加，一旦数据量到达了10000条时，这个时候就要删除最久未使用的数据了，以保持最大程度的使用缓存。 </p>
+<h3 id="LRU实现"><a href="#LRU实现" class="headerlink" title="LRU实现"></a>LRU实现</h3><p>LRU的实现最简单的就是单链表的实现，这里引用的就是JDK中的LinkedHashMap,它有两种形式，一个是最晚读的数据放在前面，最早读的数据放在后面，另一个就是FIFO，也就是先进先出。</p>
+<h4 id="晚读放前，早读放后"><a href="#晚读放前，早读放后" class="headerlink" title="晚读放前，早读放后"></a>晚读放前，早读放后</h4><p><img src="/images/lru/16093001.png" alt=""></p>
+<p>每次新的数据从头部开始插入，当链表缓存空间满了的时候，就从尾部对数据进行删除，如果有数据命中的话，就将该数据移动到头部。</p>
+<p>而基于LinkedHashMap的实现有两种方法，一种就是继承LinkedHashMap的方式，叫做inheritance，一种直接使用LinkedHashMap,叫做delegation，这两种都可以实现LRU算法，而大部分功能LinkedHashMap已经实现了,但是淘汰的删除方法就需要重写了。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">LinkedHashMap</span><span class="params">(<span class="keyword">int</span> initialCapacity, <span class="keyword">float</span> loadFactor, <span class="keyword">boolean</span> accessOrder)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>(initialCapacity, loadFactor);</div><div class="line">        <span class="keyword">this</span>.accessOrder = accessOrder;</div><div class="line">&#125;</div><div class="line">    </div><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">removeEldestEntry</span><span class="params">(Map.Entry&lt;K,V&gt; eldest)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>这是LinkedHashMap的构造方法和删除元素的方法，默认情况下，LinkedHashMap是根据元素的添加顺序进行存储的,如果构造参数accessOrder为true的话，就会按照访问数据，最晚访问的放在最前，最早访问的放在最后。</p>
+<h5 id="inheritance"><a href="#inheritance" class="headerlink" title="inheritance"></a>inheritance</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LruInheritance</span>&lt;<span class="title">K</span>, <span class="title">V</span>&gt; <span class="keyword">extends</span> <span class="title">LinkedHashMap</span>&lt;<span class="title">K</span>, <span class="title">V</span>&gt; </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> MAX_SIZE=<span class="number">100</span>;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">LruInheritance</span><span class="params">(<span class="keyword">int</span> cacheSize)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>((<span class="keyword">int</span>) Math.ceil(cacheSize / <span class="number">0.75</span>)+<span class="number">1</span>, <span class="number">0.75f</span>, <span class="keyword">true</span>);</div><div class="line">        MAX_SIZE = cacheSize;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">removeEldestEntry</span><span class="params">(Map.Entry eldest)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> size() &gt; MAX_SIZE;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在构造方法中，由于将负载因子设置为0.75，所以在原有容量要除以该负载因子，因为Map中的阀值是原有容量*负载因子，以此来判断是否超标。而原本LinkedHashMap删除的机制返回的都是false，所以要重写removeEldestEntry方法,如果超过当前容量就返回true，就会删除当前元素了。</p>
+<h5 id="delegation"><a href="#delegation" class="headerlink" title="delegation"></a>delegation</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LruDelegation</span>&lt;<span class="title">K</span>, <span class="title">V</span>&gt; </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> MAX_SIZE;</div><div class="line">    LinkedHashMap&lt;K, V&gt; map;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">LruDelegation</span><span class="params">(<span class="keyword">int</span> cacheSize)</span> </span>&#123;</div><div class="line">        MAX_CACHE_SIZE = cacheSize;</div><div class="line">        <span class="keyword">int</span> capacity = (<span class="keyword">int</span>) Math.ceil(MAX_SIZE / <span class="number">0.75</span>) + <span class="number">1</span>;</div><div class="line">        map = <span class="keyword">new</span> LinkedHashMap(capacity, <span class="number">0.75f</span>, <span class="keyword">true</span>) &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">removeEldestEntry</span><span class="params">(Map.Entry eldest)</span> </span>&#123;</div><div class="line">                <span class="keyword">return</span> size() &gt; MAX_SIZE;</div><div class="line">            &#125;</div><div class="line">        &#125;;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在这个构造方法中，它内部就是用已经重写removeEldestEntry方法的LinkedHashMap实现的，他与inheritance不同的是，对LinkedHashMap不同使用，一个当爹使，一个当朋友使。</p>
+<h4 id="FIFO-先进先出"><a href="#FIFO-先进先出" class="headerlink" title="FIFO(先进先出)"></a>FIFO(先进先出)</h4><p>其实与第一种方式相比，对于LinkedHashMap来讲，就是accessOrder参数的变化，上面也提到，LinkedHashMap默认的是FIFO的，构造参数accessOrder默认是false的，所以与第一种相比，只要将accessOrder置为false，或者使用一个无参构造，就可以实现了。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">final</span> <span class="keyword">int</span> MAX_SIZE= <span class="number">100</span>;</div><div class="line">LinkedHashMap&lt;Integer, String&gt; lru = <span class="keyword">new</span> LinkedHashMap&lt;Integer, String&gt;() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">removeEldestEntry</span><span class="params">(Map.Entry&lt;Integer, String&gt; eldest)</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> size() &gt; MAX_SIZE;</div><div class="line">    &#125;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>这种是基于单链表实现LRU<br>缺点是：由于LinkedHashMap本身特性，所以是线程不安全的，而且命中率不高。<br>优点是：实现起来简单，很多东西LinkedHashMap已经帮你实现了</p>
+<p>其实多链表或者多队列的组合使用，效率和命中很更高，一个链表或队列专门用来维护命中概率（作为访问历史数据存储），另一个作为多次访问数据存储</p>
+<p>### </p>
+<p><img src="/images/lru/16093002.png" alt=""></p>
+<p>新的数据都会从历史数据的队列的头部插入,如果当前队列容量满了之后，就会从尾部淘汰，如果当前历史数据被访问多次，就会移动到正式的LRU数据队列中，然后按时间排序，当该队列满了之后，就会从尾部淘汰。<br>多个链表或队列组合的LRU能够应该复杂的场景,能够应对不同情况，不同的淘汰机制,提高数据的命中率，同时响应的维护成本也响应的提高了。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/LRU/" rel="tag"># LRU</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/06/meet-http-1/" rel="next" title="初识HTTP-1">
+                <i class="fa fa-chevron-left"></i> 初识HTTP-1
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/09/27/neo4j-import/" rel="prev" title="neo4j的导入方案">
+                neo4j的导入方案 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/09/22/Least_recently_used/"
+           data-title="LRU(Least recently used-最久未使用算法)" data-url="http://pettyandydog.com/2016/09/22/Least_recently_used/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/head_images/head.jpg"
+               alt="andy" />
+          <p class="site-author-name" itemprop="name">andy</p>
+           
+              <p class="site-description motion-element" itemprop="description">code and life for simpleness and happiness</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/pettyandydog" target="_blank" title="github">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  github
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://stackoverflow.com/users/6618615/andyzhang" target="_blank" title="stackoverflow">
+                  
+                    <i class="fa fa-fw fa-stackoverflow"></i>
+                  
+                  stackoverflow
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#LRU原理"><span class="nav-number">1.</span> <span class="nav-text">LRU原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LRU实现"><span class="nav-number">2.</span> <span class="nav-text">LRU实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#晚读放前，早读放后"><span class="nav-number">2.1.</span> <span class="nav-text">晚读放前，早读放后</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#inheritance"><span class="nav-number">2.1.1.</span> <span class="nav-text">inheritance</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#delegation"><span class="nav-number">2.1.2.</span> <span class="nav-text">delegation</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#FIFO-先进先出"><span class="nav-number">2.2.</span> <span class="nav-text">FIFO(先进先出)</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">andy</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"pettyandydog"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+</body>
+</html>

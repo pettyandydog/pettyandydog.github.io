@@ -1,0 +1,809 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="String," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     
+
+ 
+
+
+String，StringBuffer，StringBuilder三者是处理字符串的常用类，String是在JDK1.0时就存在的字符串处理类，也是使用最广泛的，StringBuffer也是JDK1.0开始发布的线程安全的字符串处理类，他改变了原有String不可改变的字符串，增加了一个缓冲的概念，StringBuild">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码解析String，StringBuffer，StringBuilder的区别">
+<meta property="og:url" content="http://pettyandydog.com/2016/11/18/String/index.html">
+<meta property="og:site_name" content="pettyandydog">
+<meta property="og:description" content="仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     
+
+ 
+
+
+String，StringBuffer，StringBuilder三者是处理字符串的常用类，String是在JDK1.0时就存在的字符串处理类，也是使用最广泛的，StringBuffer也是JDK1.0开始发布的线程安全的字符串处理类，他改变了原有String不可改变的字符串，增加了一个缓冲的概念，StringBuild">
+<meta property="og:updated_time" content="2017-03-06T05:46:55.177Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码解析String，StringBuffer，StringBuilder的区别">
+<meta name="twitter:description" content="仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     
+
+ 
+
+
+String，StringBuffer，StringBuilder三者是处理字符串的常用类，String是在JDK1.0时就存在的字符串处理类，也是使用最广泛的，StringBuffer也是JDK1.0开始发布的线程安全的字符串处理类，他改变了原有String不可改变的字符串，增加了一个缓冲的概念，StringBuild">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://pettyandydog.com/2016/11/18/String/"/>
+
+
+
+
+
+  <title> 源码解析String，StringBuffer，StringBuilder的区别 | pettyandydog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?0dd4e9ad043e96f01ff3cbd1033c29eb";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">pettyandydog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            文章
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://pettyandydog.com/2016/11/18/String/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="andy">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head_images/head.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="pettyandydog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                源码解析String，StringBuffer，StringBuilder的区别
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-11-18T00:00:00+08:00">
+                2016-11-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/后端/" itemprop="url" rel="index">
+                    <span itemprop="name">后端</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/11/18/String/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/11/18/String/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     </p>
+</blockquote>
+<div></div> 
+
+
+<p>String，StringBuffer，StringBuilder三者是处理字符串的常用类，String是在JDK1.0时就存在的字符串处理类，也是使用最广泛的，StringBuffer也是JDK1.0开始发布的线程安全的字符串处理类，他改变了原有String不可改变的字符串，增加了一个缓冲的概念，StringBuilder是JDK1.5提出的字符串处理类，他取消了StringBuffer原有的线程安全的特性，增加了字符串处理的效率。</p>
+<p>其实要说哪种处理字符串是性能最好的，我觉得是哪种场景上的字符串处理性能是最好的，因为他们是各有千秋，下面是基于JDK1.8的源码解析这三种字符串处理方式的区别</p>
+<h2 id="String"><a href="#String" class="headerlink" title="String"></a>String</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">String</span></span></div><div class="line">    <span class="keyword">implements</span> <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span>, <span class="title">Comparable</span>&lt;<span class="title">String</span>&gt;, <span class="title">CharSequence</span> &#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">char</span> value[];</div></pre></td></tr></table></figure>
+<p>由上可知，String实现了序列化和字符序列两个接口，这会带来两个特性，一个是可传输的特性，一个是字符处理的特性，再看String的核心属性<code>value</code>，<code>value</code>是存储字符串的载体，由于被final修饰了，所有该字符串载体一旦初始化了就是不可变的，正是String不可变这一特性，所以它在处理字符串的方式只能通过构造初始化的方式来实现</p>
+<p>1.初始化一个空串<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">String</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">this</span>.value = <span class="string">""</span>.value;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>2.初始化一个字符串对象<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">String</span><span class="params">(String original)</span> </span>&#123;</div><div class="line">    <span class="keyword">this</span>.value = original.value;</div><div class="line">    <span class="keyword">this</span>.hash = original.hash;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>3.初始化一个字符串<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">String</span><span class="params">(<span class="keyword">char</span> value[])</span> </span>&#123;</div><div class="line">    <span class="keyword">this</span>.value = Arrays.copyOf(value, value.length);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>4.初始化字节类型的字符串<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">String</span><span class="params">(<span class="keyword">byte</span> ascii[], <span class="keyword">int</span> hibyte)</span> </span>&#123;</div><div class="line">   <span class="keyword">this</span>(ascii, hibyte, <span class="number">0</span>, ascii.length);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>当然还可以初始化StringBuffer，StringBuilder来构建，String的构造方法很丰富，提供了很多类型且多样的数据源来支持，如果你想要构建一个不变的或者变化不多的字符串，String很适合你</p>
+<h2 id="StringBuffer"><a href="#StringBuffer" class="headerlink" title="StringBuffer"></a>StringBuffer</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">StringBuffer</span></span></div><div class="line">    <span class="keyword">extends</span> <span class="title">AbstractStringBuilder</span></div><div class="line">    <span class="keyword">implements</span> <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span>, <span class="title">CharSequence</span>&#123;</div></pre></td></tr></table></figure>
+<p>在StringBuffer继承体系来看，StringBuffer拥有String应有的特性，而且还继承了AbstractStringBuilder这个抽象类，这个类定义了StringBuffer的存储载体(也是StringBuilder的存储载体)，现在通过一个append方法来看看StringBuffer处理字符串的方式</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> StringBuffer <span class="title">append</span><span class="params">(String str)</span> </span>&#123;</div><div class="line">    toStringCache = <span class="keyword">null</span>;</div><div class="line">    <span class="keyword">super</span>.append(str);</div><div class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>由上可知，这是一个StringBuffer拼接字符串的方法，由synchronized来修饰，所以StringBuffer是线程安全的（其实StringBuffer几乎所有的方法都是由synchronized修饰），这里它是调用的父类的append方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> AbstractStringBuilder <span class="title">append</span><span class="params">(String str)</span> </span>&#123;</div><div class="line">     <span class="keyword">if</span> (str == <span class="keyword">null</span>)</div><div class="line">         <span class="keyword">return</span> appendNull();</div><div class="line">     <span class="keyword">int</span> len = str.length();</div><div class="line">     ensureCapacityInternal(count + len);</div><div class="line">     str.getChars(<span class="number">0</span>, len, value, count);</div><div class="line">     count += len;</div><div class="line">     <span class="keyword">return</span> <span class="keyword">this</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这是父类AbstractStringBuilder的append方法，在方法内有是两个很重要方法，也就是缓冲区的实现</p>
+<ul>
+<li>扩容方法：ensureCapacityInternal(int minimumCapacity)</li>
+<li>赋值方法：str.getChars(int srcBegin, int srcEnd, char dst[], int dstBegin)</li>
+</ul>
+<p>我们先看看扩容方法<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">ensureCapacityInternal</span><span class="params">(<span class="keyword">int</span> minimumCapacity)</span> </span>&#123;</div><div class="line">     <span class="keyword">if</span> (minimumCapacity - value.length &gt; <span class="number">0</span>)</div><div class="line">         expandCapacity(minimumCapacity);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>这里会对所拼接的字符串做一个判断，也就是所拼接的字符串不能为空<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">expandCapacity</span><span class="params">(<span class="keyword">int</span> minimumCapacity)</span> </span>&#123;</div><div class="line">    <span class="keyword">int</span> newCapacity = value.length * <span class="number">2</span> + <span class="number">2</span>;</div><div class="line">    <span class="keyword">if</span> (newCapacity - minimumCapacity &lt; <span class="number">0</span>)</div><div class="line">        newCapacity = minimumCapacity;</div><div class="line">    <span class="keyword">if</span> (newCapacity &lt; <span class="number">0</span>) &#123;</div><div class="line">        <span class="keyword">if</span> (minimumCapacity &lt; <span class="number">0</span>) </div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> OutOfMemoryError();</div><div class="line">            newCapacity = Integer.MAX_VALUE;</div><div class="line">        &#125;</div><div class="line">        value = Arrays.copyOf(value, newCapacity);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>以上代码可知，他会先对原有的字符数组的容量扩大两倍再加二，在和最小的容量(原有的容量+拼接字符串的容量)比较，没有最小容量大就取最小容量，这里也有一个以防内存溢出导致容量为负数的一个处理，最后核心的就是 <code>Arrays.copyOf(value, newCapacity)</code>，Arrays这是一个数组的工具类，copyOf方法是针对数组在原有的基础上改变其容量，这就是等于对原有的字符串数组进行了扩容，在回来看看将拼接的字符数组重新添加到新的字符数组的方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getChars</span><span class="params">(<span class="keyword">int</span> srcBegin, <span class="keyword">int</span> srcEnd, <span class="keyword">char</span> dst[], <span class="keyword">int</span> dstBegin)</span> </span>&#123;</div><div class="line">     <span class="keyword">if</span> (srcBegin &lt; <span class="number">0</span>) &#123;</div><div class="line">         <span class="keyword">throw</span> <span class="keyword">new</span> StringIndexOutOfBoundsException(srcBegin);</div><div class="line">     &#125;</div><div class="line">     <span class="keyword">if</span> (srcEnd &gt; value.length) &#123;</div><div class="line">         <span class="keyword">throw</span> <span class="keyword">new</span> StringIndexOutOfBoundsException(srcEnd);</div><div class="line">     &#125;</div><div class="line">     <span class="keyword">if</span> (srcBegin &gt; srcEnd) &#123;</div><div class="line">         <span class="keyword">throw</span> <span class="keyword">new</span> StringIndexOutOfBoundsException(srcEnd - srcBegin);</div><div class="line">     &#125;</div><div class="line">     System.arraycopy(value, srcBegin, dst, dstBegin, srcEnd - srcBegin);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>该方法开始会对不符合条件进行异常处理，最后的调用<code>System.arraycopy</code>方法将拼接字符数组添加到新的字符数组，这就完成了一个字符串拼接的过程，也就是缓冲池的实现，在多线程的情况下<br>保证安全的前提字符串大量的变动，使用StringBuffer是最好的</p>
+<h2 id="StringBuilder"><a href="#StringBuilder" class="headerlink" title="StringBuilder"></a>StringBuilder</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">StringBuilder</span></span></div><div class="line">    <span class="keyword">extends</span> <span class="title">AbstractStringBuilder</span></div><div class="line">    <span class="keyword">implements</span> <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span>, <span class="title">CharSequence</span></div></pre></td></tr></table></figure>
+<p>其实从父类体系来看，StringBuilder和StringBuffer是一样的，那StringBuilder与StringBuffer有什么区别呢？让我们看看它的append的方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> StringBuilder <span class="title">append</span><span class="params">(String str)</span> </span>&#123;</div><div class="line">    <span class="keyword">super</span>.append(str);</div><div class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这里你就会方法它也是调用父类的append方法，而他们的父类又是同一个，这里不同的就是StringBuilder的append方法没有用synchronized修饰，所以它是不安全的，当然也就意味着在单线程的情况下比StringBuffer的性能是要好的，其实对于StringBuffer和StringBuilder来讲，它们都是对于AbstractStringBuilder类的实现，或许会有其他细节处理的不同，大致来讲，他们的区别就是一个是线程安全的实现，一个是线程不安全的实现，只是要你自己去权衡线程安全与性能之间的抉择</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>StringBuilder或者StringBuffer并不一定比String的效率高，在各个场景中有不同的用法而已，对于StringBuilder和StringBuffer来讲，也不是施了什么魔法，只是实现了CopyOnWrite的思想，对字符串的操作的性能更高了，应对不同情况的选择而已</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/String/" rel="tag"># String</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/11/01/singleton/" rel="next" title="解刨单例模式">
+                <i class="fa fa-chevron-left"></i> 解刨单例模式
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/11/18/String/"
+           data-title="源码解析String，StringBuffer，StringBuilder的区别" data-url="http://pettyandydog.com/2016/11/18/String/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/head_images/head.jpg"
+               alt="andy" />
+          <p class="site-author-name" itemprop="name">andy</p>
+           
+              <p class="site-description motion-element" itemprop="description">code and life for simpleness and happiness</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/pettyandydog" target="_blank" title="github">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  github
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://stackoverflow.com/users/6618615/andyzhang" target="_blank" title="stackoverflow">
+                  
+                    <i class="fa fa-fw fa-stackoverflow"></i>
+                  
+                  stackoverflow
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#String"><span class="nav-number">1.</span> <span class="nav-text">String</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#StringBuffer"><span class="nav-number">2.</span> <span class="nav-text">StringBuffer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#StringBuilder"><span class="nav-number">3.</span> <span class="nav-text">StringBuilder</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">andy</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"pettyandydog"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+</body>
+</html>

@@ -1,0 +1,892 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="索引,数据库," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     
+
+  
+
+索引概述
+索引（英语：Index）：又稱引得，通檢，備檢，是一本书籍的重要组成部分，它把书中的重要名词列罗列出来，并给出它们相应的页码，方便读者快速查找该名  词的定义和含义—-来自维基百科。
+数据库索引：是数据库管理系统中一个排序的数据结构，以协助快速查询、更新数据库表中数据——来自维基百科。
+索引很普遍，也很方便，他">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数据库索引">
+<meta property="og:url" content="http://pettyandydog.com/2016/05/12/database_index/index.html">
+<meta property="og:site_name" content="pettyandydog">
+<meta property="og:description" content="仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     
+
+  
+
+索引概述
+索引（英语：Index）：又稱引得，通檢，備檢，是一本书籍的重要组成部分，它把书中的重要名词列罗列出来，并给出它们相应的页码，方便读者快速查找该名  词的定义和含义—-来自维基百科。
+数据库索引：是数据库管理系统中一个排序的数据结构，以协助快速查询、更新数据库表中数据——来自维基百科。
+索引很普遍，也很方便，他">
+<meta property="og:image" content="http://pettyandydog.com/images/database_index/16100801.png">
+<meta property="og:image" content="http://pettyandydog.com/images/database_index/16100802.png">
+<meta property="og:image" content="http://pettyandydog.com/images/database_index/16100803.png">
+<meta property="og:image" content="http://pettyandydog.com/images/database_index/16100804.png">
+<meta property="og:updated_time" content="2017-03-06T06:08:28.977Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="数据库索引">
+<meta name="twitter:description" content="仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     
+
+  
+
+索引概述
+索引（英语：Index）：又稱引得，通檢，備檢，是一本书籍的重要组成部分，它把书中的重要名词列罗列出来，并给出它们相应的页码，方便读者快速查找该名  词的定义和含义—-来自维基百科。
+数据库索引：是数据库管理系统中一个排序的数据结构，以协助快速查询、更新数据库表中数据——来自维基百科。
+索引很普遍，也很方便，他">
+<meta name="twitter:image" content="http://pettyandydog.com/images/database_index/16100801.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://pettyandydog.com/2016/05/12/database_index/"/>
+
+
+
+
+
+  <title> 数据库索引 | pettyandydog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?0dd4e9ad043e96f01ff3cbd1033c29eb";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">pettyandydog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            文章
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://pettyandydog.com/2016/05/12/database_index/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="andy">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head_images/head.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="pettyandydog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                数据库索引
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-05-12T00:00:00+08:00">
+                2016-05-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/05/12/database_index/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/05/12/database_index/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     </p>
+</blockquote>
+<div></div>  
+
+<h3 id="索引概述"><a href="#索引概述" class="headerlink" title="索引概述"></a>索引概述</h3><blockquote>
+<p>索引（英语：Index）：又稱引得，通檢，備檢，是一本书籍的重要组成部分，它把书中的重要名词列罗列出来，并给出它们相应的页码，方便读者快速查找该名  词的定义和含义—-来自维基百科。</p>
+<p>数据库索引：是数据库管理系统中一个排序的数据结构，以协助快速查询、更新数据库表中数据——来自维基百科。</p>
+<p>索引很普遍，也很方便，他能使人能更好更快的找到自己想要的东西，在生活中也都能有很好的应用，比如一些书籍目录，指示牌，门牌号，而下面讲到的是在数据库中的应用。</p>
+</blockquote>
+<h3 id="数据库索引"><a href="#数据库索引" class="headerlink" title="数据库索引"></a>数据库索引</h3><h4 id="二叉树查找树"><a href="#二叉树查找树" class="headerlink" title="二叉树查找树"></a>二叉树查找树</h4><p>要知道数据库索引之前，必须知道一种数据结构二叉查找树</p>
+<p><img src="/images/database_index/16100801.png" alt=""></p>
+<p>二叉查找树是一种特殊的二叉树，必须要符合一定的结构规则：</p>
+<ul>
+<li>任意节点的左子树不空，则左子树上所有结点的值均小于它的根结点的值；</li>
+<li>任意节点的右子树不空，则右子树上所有结点的值均大于它的根结点的值；</li>
+<li>任意节点的左、右子树也分别为二叉查找树；</li>
+<li>没有键值相等的节点。</li>
+</ul>
+<p>如上图所示可知，我们这颗二叉查找树一共有7个节点，比如我们现在要搜索<code>122</code>这个节点，从根节点<code>100</code>开始遍历：</p>
+<ol>
+<li>由于100&lt;122，所以我们需要查找根节点的右节点<code>150</code></li>
+<li>由于122&lt;150，所以我们现在需要查找它的左节点<code>122</code></li>
+<li>由于122==122，返回当前的节点(如果<code>122</code>节点绑定了当前数据库的信息，我们就可以通过索引来查找数据了)</li>
+</ol>
+<p>二叉查找树是根据查找的层数来决定你的查找效率，当然最坏的查找效率也就O(n),但它支持动态查询，且有很多改进版的二叉查找树可以使树高为 O(log n),如SBT,AVL树，红黑树等。</p>
+<p>其实在这里你就能够想象到在数据库中使用索引的查找时的整个结构过程，以上我们会发现，二叉搜索树太依赖搜索的层数，数据太多也意味着层数也会增加，查询的效率也会相应的下降，面对百万级，甚至亿级的查询时，分分钟崩溃，而且你也会发现二叉搜索树应对的是单值查询（where p=2），在范围查询（where 1&lt;p&lt;3）中就捉襟见肘了（要遍历很多次），其实在单值查询中还有一种索引结构叫做哈希表</p>
+<h4 id="哈希表"><a href="#哈希表" class="headerlink" title="哈希表"></a>哈希表</h4><p>哈希表（Hash table，也叫散列表），是根据键（Key）而直接访问在内存存储位置的数据结构。 也就是说，它通过计算一个关于键值的函数，将所需查询的数据映射到表中一个位置来访问记录，这加快了查找速度。 这个映射函数称做散列函数，存放记录的数组称做散列表。—-来自维基百科</p>
+<p>其实在数据库中一些简单常见的连接操作叫做hash连接，这个数据结构也被数据库用来保存一些内部的东西（比如锁表或者缓冲池）</p>
+<p>哈希表的定义：</p>
+<ul>
+<li>关键字的哈希函数。关键字计算出来的哈希值给出了元素的位置（叫做哈希桶）。</li>
+<li>关键字比较函数。一旦你找到正确的哈希桶，你必须用比较函数在桶内找到你要的元素。</li>
+</ul>
+<p><img src="/images/database_index/16100802.png" alt=""></p>
+<p>由图可知，这个Hash table中有0-9十个哈希桶，我们想象成是一个数组（以0-9下标组成）,比如你所要查找的关键字通过哈希函数对10去模，保留整数有效位最后一位，用它利用比较函数（比如equals）来定位哈希桶的位置：</p>
+<ul>
+<li>如果元素最后一位是 0，则进入哈希桶0，</li>
+<li>如果元素最后一位是 1，则进入哈希桶1，</li>
+<li>如果元素最后一位是 2，则进入哈希桶2 。<br>依次类推</li>
+</ul>
+<p>比方说你要找元素 78：</p>
+<ul>
+<li>哈希表计算 78 的哈希码，等于 8。</li>
+<li>查找哈希桶 8，找到的第一个元素是 78。</li>
+<li>返回元素 78</li>
+</ul>
+<p>查询仅耗费了 2 次运算（1次计算哈希值，另一次在哈希桶中查找元素）。</p>
+<p>现在，比方说你要找元素 59：</p>
+<ul>
+<li>哈希表计算 59 的哈希码，等于9。</li>
+<li>查找哈希桶 9，第一个找到的元素是 99。因为 99 不等于 59， 那么 99 不是正确的元素。</li>
+<li>用同样的逻辑，查找第二个元素(9)，第三个(79)，……，最后一个(29)。</li>
+<li>元素不存在。</li>
+</ul>
+<p>搜索耗费了 7 次运算<br>其实由上可知，只要你的哈希函数与哈希桶定义的越好，查找的效率也就相应的越高。</p>
+<h4 id="B-Tree"><a href="#B-Tree" class="headerlink" title="B-Tree"></a>B-Tree</h4><p>以上的关于查找的数据结构都不能满足现在日新月异的数据库了，在二叉树搜索树的基础上，又演变出一种新的数据结构B-Tree</p>
+<p>B树（英语：B-tree）是一种自平衡的树，能够保持数据有序。这种资料结构能够让查找数据，顺序访问，插入数据及删除的动作，都在对数时间内完成—-来自维基百科</p>
+<p><img src="/images/database_index/16100803.png" alt=""></p>
+<p>一颗m阶的B-Tree规则如下：</p>
+<ul>
+<li>树中每个结点至多有m个孩子；</li>
+<li>除根结点和叶子结点外，其它每个结点至少有m/2个孩子；</li>
+<li>若根结点不是叶子结点，则至少有2个孩子；</li>
+<li>所有叶子结点(失败节点)都出现在同一层，叶子结点不包含任何关键字信息；</li>
+<li>所有非终端结点中包含下列信息数据 ( n, A0 , K1 , A1 , K2 , A2 , … , Kn , An )，其中： Ki (i=1,…,n)为关键字，且Ki &lt; Ki+1 , Ai (i=0,…,n)为指向子树根结点的指针, n为关键字的个数</li>
+<li>非叶子结点的指针：P[1], P[2], …, P[M]；其中P[1]指向关键字小于K[1]的子树，P[M]指向关键字大于K[M-1]的子树，其它P[i]指向关键字属于(K[i-1], K[i])的子树；</li>
+</ul>
+<p>相对于二叉搜索树而言，B-Tree在每个节点中最少都得有两个孩子，优化了二叉搜索树过于依赖层数，使其更加灵活，然而相应的维护成本大大的增高。</p>
+<p>如上图所示，比方说你要查找节点<code>21</code>,从根节点开始遍历：</p>
+<ul>
+<li>在根节点中，由于节点<code>21</code>满足20&lt;21&lt;30,所以指针指向了P2</li>
+<li>在P2中，节点<code>21</code>满足21&lt;22,但是指针没有指向任何地址，所以返回NULL</li>
+</ul>
+<p>又比方说要查找节点<code>88</code>，从根节点开始遍历</p>
+<ul>
+<li>在根节点中，由于节点<code>88</code>满足30&lt;80,所以指针指向P3</li>
+<li>在P3中，节点<code>88</code>满足88&gt;62,所以指针指向P7</li>
+<li>在P7中，节点<code>88</code>满足88==88，所以返回P7中的<code>88</code>节点</li>
+</ul>
+<p>由于B-Tree的索引结构文件和表数据存储文件不是连在一起的，访问数据也有额外消耗了</p>
+<p>由上你可以发现这种结构还是不能高效解决范围查询的场景，当出现范围查询（where 1&lt;p&lt;3）,B-Tree还是得一遍一遍的从根节点开始遍历，再一次一次进行磁盘IO（因为索引文件存储在磁盘上，而磁盘操作是物理操作，非常耗时的，所以磁盘IO是数据库查询的一个瓶颈，后面的B+Tree正好优化了这一点）。</p>
+<h4 id="B-Tree-1"><a href="#B-Tree-1" class="headerlink" title="B+Tree"></a>B+Tree</h4><p><img src="/images/database_index/16100804.png" alt=""></p>
+<p>B+ 树是一种树数据结构，通常用于数据库和操作系统的文件系统中。B+ 树的特点是能够保持数据稳定有序，其插入与修改拥有较稳定的对数时间复杂度。B+ 树元素自底向上插入，这与二叉树恰好相反——来自维基百科</p>
+<p>在一个B+树里结构：</p>
+<ul>
+<li>只有最底层的节点（叶子节点）才保存信息（相关表的行位置）</li>
+<li>其它节点只是在搜索中用来指引到正确节点的</li>
+<li>所有的叶子节点都带有关键字直至底层节点</li>
+</ul>
+<p>B+树是B树的进化体,他从磁盘IO上对原有的结构进行了优化,以至于减少对磁盘的IO（上面也提到，磁盘IO是物理操作，这对磁盘来说是很耗时间的），大大的增加了搜索的效率。</p>
+<p>上面也提到，B树对于范围查询来讲是比较吃力的，不能高效的满足它的需求，因为范围查询（where 1&lt;p&lt;3）正常情况下在B树上要遍历两或者三遍（每次从根节点遍历），意味着要至少进行两三次的磁盘IO，这对于大数据量查询来讲是很吃力的。</p>
+<p>B+树是怎么样进行减少磁盘IO的优化呢？我们先来看看一个范围查询在索引是怎么遍历的。</p>
+<p>我们假设一个范围查询：where 10&lt;p&lt;50</p>
+<ul>
+<li>在根节点中，满足5&lt;10&lt;58,所以指针指向P1节点</li>
+<li>在P1节点中，满足5&lt;10&lt;30,所以指针指向P2节点</li>
+<li>在P2底层节点中，每个节点都带有关键字，且每个节点之间相互链接，可以从一个节点遍历到另一个节点，且都是顺序的，所以，在大于或等于10的节点开始遍历，一直遍历到小于等于50为止</li>
+</ul>
+<p>由上可知，在底层节点都是互相连接的，遍历中间的值就是查询的结果，而且B+树的表数据和索引文件是存储在一起的，所以遍历的就是表的行数据，这样只要一次IO就完成了。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="http://coding-geek.com/how-databases-work/" target="_blank" rel="external">http://coding-geek.com/how-databases-work/</a><br><a href="http://blog.csdn.net/v_july_v/article/details/6530142" target="_blank" rel="external">http://blog.csdn.net/v_july_v/article/details/6530142</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/索引/" rel="tag"># 索引</a>
+          
+            <a href="/tags/数据库/" rel="tag"># 数据库</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/05/11/set_up_github_blog_with_hexo/" rel="next" title="hexo搭建github博客">
+                <i class="fa fa-chevron-left"></i> hexo搭建github博客
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/06/06/cas/" rel="prev" title="原子操作-CAS">
+                原子操作-CAS <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/05/12/database_index/"
+           data-title="数据库索引" data-url="http://pettyandydog.com/2016/05/12/database_index/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/head_images/head.jpg"
+               alt="andy" />
+          <p class="site-author-name" itemprop="name">andy</p>
+           
+              <p class="site-description motion-element" itemprop="description">code and life for simpleness and happiness</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/pettyandydog" target="_blank" title="github">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  github
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://stackoverflow.com/users/6618615/andyzhang" target="_blank" title="stackoverflow">
+                  
+                    <i class="fa fa-fw fa-stackoverflow"></i>
+                  
+                  stackoverflow
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#索引概述"><span class="nav-number">1.</span> <span class="nav-text">索引概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据库索引"><span class="nav-number">2.</span> <span class="nav-text">数据库索引</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#二叉树查找树"><span class="nav-number">2.1.</span> <span class="nav-text">二叉树查找树</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#哈希表"><span class="nav-number">2.2.</span> <span class="nav-text">哈希表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#B-Tree"><span class="nav-number">2.3.</span> <span class="nav-text">B-Tree</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#B-Tree-1"><span class="nav-number">2.4.</span> <span class="nav-text">B+Tree</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考"><span class="nav-number">3.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">andy</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"pettyandydog"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+</body>
+</html>

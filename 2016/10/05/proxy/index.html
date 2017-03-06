@@ -1,0 +1,872 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="代理模式," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     
+
+  
+
+代理模式
+在代理模式中,角色分配如下：
+
+Subject(1-k) : 委托对象所实现的所有接口(i&amp;gt;=1)
+RealSubject : 委托对象，也就是被代理的对象
+ProxySubject : 代理对象
+
+在JDK实现的代理模式是面向接口的，不管是委托类还是代理类都应该实现相同的接口，这样才会保持行为的一致性，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="动态代理">
+<meta property="og:url" content="http://pettyandydog.com/2016/10/05/proxy/index.html">
+<meta property="og:site_name" content="pettyandydog">
+<meta property="og:description" content="仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     
+
+  
+
+代理模式
+在代理模式中,角色分配如下：
+
+Subject(1-k) : 委托对象所实现的所有接口(i&amp;gt;=1)
+RealSubject : 委托对象，也就是被代理的对象
+ProxySubject : 代理对象
+
+在JDK实现的代理模式是面向接口的，不管是委托类还是代理类都应该实现相同的接口，这样才会保持行为的一致性，">
+<meta property="og:image" content="http://pettyandydog.com/images/proxy/16101201.png">
+<meta property="og:image" content="http://pettyandydog.com/images/proxy/16101202.png">
+<meta property="og:updated_time" content="2017-03-06T05:59:22.056Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="动态代理">
+<meta name="twitter:description" content="仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     
+
+  
+
+代理模式
+在代理模式中,角色分配如下：
+
+Subject(1-k) : 委托对象所实现的所有接口(i&amp;gt;=1)
+RealSubject : 委托对象，也就是被代理的对象
+ProxySubject : 代理对象
+
+在JDK实现的代理模式是面向接口的，不管是委托类还是代理类都应该实现相同的接口，这样才会保持行为的一致性，">
+<meta name="twitter:image" content="http://pettyandydog.com/images/proxy/16101201.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://pettyandydog.com/2016/10/05/proxy/"/>
+
+
+
+
+
+  <title> 动态代理 | pettyandydog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?0dd4e9ad043e96f01ff3cbd1033c29eb";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">pettyandydog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            文章
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://pettyandydog.com/2016/10/05/proxy/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="andy">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head_images/head.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="pettyandydog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                动态代理
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-10-05T00:00:00+08:00">
+                2016-10-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/后端/" itemprop="url" rel="index">
+                    <span itemprop="name">后端</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/10/05/proxy/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/10/05/proxy/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     </p>
+</blockquote>
+<div></div>  
+
+<h3 id="代理模式"><a href="#代理模式" class="headerlink" title="代理模式"></a>代理模式</h3><p><img src="/images/proxy/16101201.png" alt=""></p>
+<p>在代理模式中,角色分配如下：</p>
+<ul>
+<li>Subject(1-k) : 委托对象所实现的所有接口(i&gt;=1)</li>
+<li>RealSubject : 委托对象，也就是被代理的对象</li>
+<li>ProxySubject : 代理对象</li>
+</ul>
+<p>在JDK实现的代理模式是面向接口的，不管是委托类还是代理类都应该实现相同的接口，这样才会保持行为的一致性，因为对于Client来说，它只要输出它所想要的结果，不会管你是谁实现的，所以为了减轻委托对象的压力，就必须要克隆出其他跟自己一样的帮手来帮助自己，就好像火车票代售点一样，代理对象就由此而生了。</p>
+<h3 id="静态代理"><a href="#静态代理" class="headerlink" title="静态代理"></a>静态代理</h3><p>静态代理是指在JVM执行前就把你的代理类给定义好了，例子如下：</p>
+<p><strong>Subject</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Subject</span> </span>&#123;</div><div class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doSomething</span><span class="params">()</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><strong>RealSubject</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RealSubject</span> <span class="keyword">implements</span> <span class="title">Subject</span></span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doSomething</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="comment">// TODO Auto-generated method stub</span></div><div class="line">        System.out.println(<span class="string">"i am just do something!!!!!"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><strong>ProxySubject</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ProxySubject</span> <span class="keyword">implements</span> <span class="title">Subject</span></span>&#123;</div><div class="line">    Subject realSubject = <span class="keyword">null</span> ;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doSomething</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="comment">//类似于Spring的@Before do something</span></div><div class="line">        realSubject = <span class="keyword">new</span> RealSubject();</div><div class="line">        realSubject.doSomething(); </div><div class="line">        <span class="comment">//类似于Spring的@After do something</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>由上可知，其实调用代理类(ProxySubject)和调用委托类(RealSubject)是一样的效果，等于是代理类对委托类又重新封装了一层，但是为什么要这样做呢？</p>
+<ol>
+<li><p>如果每次Client调用委托类来完成业务操作，那么每次委托类就得创建对象来完成业务，如果是大业务场景，消耗的内存是巨大的，这个时候，如果是代理类来实现，可以在代理类内对委托类实现缓存操作，这样就会减少很大的内存消耗。</p>
+</li>
+<li><p>如果你想对原生的委托类进行扩展(比如Spring中的@After和@Before的思想），你可以对委托类进行修改，但是这会影响原有已经实现的程序逻辑，如果使用代理类，在不影响原生的委托类情况下再进行逻辑的扩展，使程序变得更加健壮。</p>
+</li>
+</ol>
+<p>由上可知，代理类的作用使原生的委托类更加的灵活被运用，能够应付不同的不同应用场景，但是，如果委托类的一些应用方法的删减，实现接口的减少，对于代理类来说也要进行很大的修改，这样的改动有时使代理模式变得更加的复杂，变得不是那么的灵活，如果有一种代理类能够需要调用的时候才加载，不管接口的变动，代理类都会自动的更新，无需改变，那么这就是动态代理。</p>
+<h3 id="动态代理"><a href="#动态代理" class="headerlink" title="动态代理"></a>动态代理</h3><p>动态代理是在静态代理的基础上对代理类进行了优化，利用<a href="http://pettyandydog.com/2016/10/10/java_reflection/" title="java反射">java反射</a>的原理来创建代理类，使代理类在JVM运行时创建。</p>
+<p><img src="/images/proxy/16101202.png" alt=""></p>
+<p>如上图所示，这个代理类会根据现有的接口数或者实现的方法动态的去创建对象，对于业务频繁更替的场景下，不需要对代理类进行频繁的更改，更加的灵活，而在java中，对于动态代理的实现，有两种方法，一种是JDK形式的实现，一种是第三方包cglib的实现形式。</p>
+<h4 id="JDK动态代理"><a href="#JDK动态代理" class="headerlink" title="JDK动态代理"></a>JDK动态代理</h4><p>在JDK实现中，主要是一个类，一个接口：动态代理类Proxy和调用处理器InvocationHandler</p>
+<p>1.<strong>Proxy</strong></p>
+<p>Proxy是动态创建代理类的类，它主要是利用接口的信息在类加载器中动态的生成代理类，而其中主要的生成代理类的方法就是newProxyInstance方法，实现如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Object <span class="title">newProxyInstance</span><span class="params">(ClassLoader loader, </span></span></div><div class="line">            Class&lt;?&gt;[] interfaces, </div><div class="line">            InvocationHandler h) </div><div class="line">            <span class="keyword">throws</span> IllegalArgumentException &#123; </div><div class="line">    </div><div class="line">    <span class="comment">// 检查调用处理器是否为空，为空抛异常</span></div><div class="line">    <span class="keyword">if</span> (h == <span class="keyword">null</span>) &#123; </div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException(); </div><div class="line">    &#125; </div><div class="line"></div><div class="line">    <span class="comment">// 获得与制定类装载器和一组接口相关的代理类类型对象</span></div><div class="line">    Class cl = getProxyClass(loader, interfaces); </div><div class="line"></div><div class="line">    <span class="comment">// 通过反射获取构造函数对象并生成代理类实例</span></div><div class="line">    <span class="keyword">try</span> &#123; </div><div class="line">        Constructor cons = cl.getConstructor(constructorParams); </div><div class="line">        <span class="keyword">return</span> (Object) cons.newInstance(<span class="keyword">new</span> Object[] &#123; h &#125;); </div><div class="line">    &#125; <span class="keyword">catch</span> (NoSuchMethodException e) &#123;</div><div class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> InternalError(e.toString()); </div><div class="line">    &#125; <span class="keyword">catch</span> (IllegalAccessException e) &#123;</div><div class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> InternalError(e.toString()); </div><div class="line">    &#125; <span class="keyword">catch</span> (InstantiationException e) &#123;</div><div class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> InternalError(e.toString()); </div><div class="line">    &#125; <span class="keyword">catch</span> (InvocationTargetException e) &#123;</div><div class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> InternalError(e.toString()); </div><div class="line">    &#125; </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>由上就很容易发现，这是个简单的java反射创建对象，获取Class对象，再获取构造器，最后反射成对象，这是个静态方法，所以直接类本身就可以调用了。</p>
+<p>Proxy还有很多的实现，比如利用一个HashMap来实现对代理类的缓存，key就是接口列表，value就是代理类的对象，还有关联调用处理器的方法等等。</p>
+<p>2.<strong>InvocationHandler</strong></p>
+<p>InvocationHandler是调用处理器，是负责方法调用时，利用java反射机制在JVM运行时调用该方法，其中主要的方法就是invoke方法，有三个参数proxy,method,args，这是需要自己去实现的，以下是invoke方法的实现</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span> <span class="keyword">throws</span> Throwable </span>&#123;</div><div class="line">    <span class="comment">//方法反射</span></div><div class="line">    Object obj = method.invoke(proxyObj, args);</div><div class="line">    <span class="keyword">return</span> obj;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>3.<strong>代码实现</strong></p>
+<p><strong>MyInvocationHandler</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyInvocationHandler</span> <span class="keyword">implements</span> <span class="title">InvocationHandler</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span> <span class="keyword">throws</span> Throwable </span>&#123;</div><div class="line"></div><div class="line">         <span class="comment">////类似于Spring的@Before do something</span></div><div class="line">         <span class="comment">//方法反射</span></div><div class="line">         Object obj = method.invoke(proxyObj, args);</div><div class="line">         <span class="comment">//类似于Spring的@After do something</span></div><div class="line">         <span class="keyword">return</span> obj;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><strong>JdkProxyFactory</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JdkProxyFactory</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> Object proxyObj = <span class="keyword">null</span>;<span class="comment">//代理类</span></div><div class="line">    <span class="comment">// 创建代理</span></div><div class="line">   <span class="function"><span class="keyword">public</span> Object <span class="title">createProxy</span><span class="params">(Object targetObject,InvocationHandler myInvocationHandler)</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (<span class="keyword">null</span> != targetObject) &#123;</div><div class="line">            <span class="keyword">this</span>.proxyObj = targetObject;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> Proxy.newProxyInstance(<span class="keyword">this</span>.proxyObj.getClass().getClassLoader(),  </div><div class="line">            <span class="keyword">this</span>.proxyObj.getClass().getInterfaces(), myInvocationHandler);</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>以上就是一个简单的JDK实现的代理类，直接用以下的代码调用就可以了</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Subject proxySubject = (Subject)<span class="keyword">new</span> JdkProxyFactory().createProxy(<span class="keyword">new</span> RealSubject(),<span class="keyword">new</span> MyInvocationHandler());</div><div class="line"></div><div class="line">proxySubject.doSomething();</div></pre></td></tr></table></figure>
+<p>当我们调用doSomething方法时，你以为是调用RealSubject对象的doSomething方法，其实是调用代理类$ProxyN(生成代理类的名称，N从1开始)的doSomething方法，他会触发该方法的调用处理器invoke方法来调用doSomething方法。</p>
+<h4 id="cglib动态代理"><a href="#cglib动态代理" class="headerlink" title="cglib动态代理"></a>cglib动态代理</h4><p>CGLib是面向类的，而cglib动态代理的实现也是一个类和一个接口：Enhancer和MethodInterceptor，和JDK的Proxy和InvocationHandler职能是一样的，一个是负责创建类，一个是负责调用方法的处理</p>
+<p>1.<strong>Enhancer</strong></p>
+<p>Enhancer可以说是CGLib的一个字节码增强器，它的作用通过委托类的子类来实现代理类的创建，创建过程如下：</p>
+<ul>
+<li>通过委托类创建它的子类，在子类中的每个方法设置回调方法，然后获取它的Class对象</li>
+<li>利用Class对象根据GeneratorStrategy.generate方法生成代理类的字节码</li>
+<li>通过反编译生成代理类的Class对象</li>
+<li>再通过反射机制创建代理类的对象</li>
+</ul>
+<p>2.<strong>MethodInterceptor</strong></p>
+<p>MethodInterceptor是一个方法拦截器，它的作用就是在代理类每执行一个方法时执行拦截方法并返回，其中最主要的方法intercept实现如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">intercept</span><span class="params">(Object obj, Method method, Object[] args,</span></span></div><div class="line">                MethodProxy proxy) <span class="keyword">throws</span> Throwable &#123;</div><div class="line">            <span class="comment">//相当于调用了代理类本身的方法</span></div><div class="line">            Object result = proxy.invokeSuper(obj, args);</div><div class="line">            <span class="keyword">return</span> result;</div><div class="line">        &#125;</div></pre></td></tr></table></figure>
+<p>CGLib实现了Fastclass机制，对代理类的方法建立了索引，把方法存储在索引中，通过方法名和它的信息就可以获取该方法，不需要进行反射来进行方法的调用。</p>
+<p>3.<strong>代码实现</strong></p>
+<p><strong>MyMethodInterceptor</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyMethodInterceptor</span> <span class="keyword">implements</span> <span class="title">MethodInterceptor</span>  </span>&#123;</div><div class="line"></div><div class="line">        <span class="function"><span class="keyword">public</span> Object <span class="title">intercept</span><span class="params">(Object obj, Method method, Object[] arg, MethodProxy proxy)</span> <span class="keyword">throws</span> Throwable </span>&#123;</div><div class="line"></div><div class="line">         <span class="comment">////类似于Spring的@Before do something</span></div><div class="line">         <span class="comment">//方法反射</span></div><div class="line">         Object object = proxy.invokeSuper(obj, arg);</div><div class="line">         <span class="comment">//类似于Spring的@After do something</span></div><div class="line">         <span class="keyword">return</span> object;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><strong>CglibProxyFactory</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CglibProxyFactory</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> Object proxyObj = <span class="keyword">null</span>;<span class="comment">//代理类</span></div><div class="line">    <span class="comment">// 创建代理</span></div><div class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">createProxy</span><span class="params">(Object targetObject,MethodInterceptor MyMethodInterceptor)</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (<span class="keyword">null</span> != targetObject) &#123;</div><div class="line">            <span class="keyword">this</span>.proxyObj = targetObject;</div><div class="line">        &#125;</div><div class="line">        Enhancer enhancer = <span class="keyword">new</span> Enhancer();  </div><div class="line">        enhancer.setSuperclass(<span class="keyword">this</span>.proxyObj.class);  </div><div class="line">        enhancer.setCallback(MyMethodInterceptor);  </div><div class="line">        <span class="keyword">return</span> enhancer.create();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这是一段Cglib代理类的实现，调用代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Subject proxySubject = (Subject)<span class="keyword">new</span> CglibProxyFactory().createProxy(<span class="keyword">new</span> RealSubject(),<span class="keyword">new</span> MethodInterceptor());</div><div class="line">proxySubject.doSomething();</div></pre></td></tr></table></figure>
+<p>相比于JDK代理实现，Cglib的实现更快，它的不同之处在于</p>
+<ul>
+<li>Cglib代理摒除了JDK代理利用反射来调用方法(反射的效率是很低的），利用索引来实现。</li>
+<li>Cglib代理是面向extends的，意味着一些不能继承的类无法用Cglib来实现，而JDK代理是面向implements,这方面更规范。</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/代理模式/" rel="tag"># 代理模式</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/27/neo4j-import/" rel="next" title="neo4j的导入方案">
+                <i class="fa fa-chevron-left"></i> neo4j的导入方案
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/11/01/singleton/" rel="prev" title="解刨单例模式">
+                解刨单例模式 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/10/05/proxy/"
+           data-title="动态代理" data-url="http://pettyandydog.com/2016/10/05/proxy/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/head_images/head.jpg"
+               alt="andy" />
+          <p class="site-author-name" itemprop="name">andy</p>
+           
+              <p class="site-description motion-element" itemprop="description">code and life for simpleness and happiness</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/pettyandydog" target="_blank" title="github">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  github
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://stackoverflow.com/users/6618615/andyzhang" target="_blank" title="stackoverflow">
+                  
+                    <i class="fa fa-fw fa-stackoverflow"></i>
+                  
+                  stackoverflow
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#代理模式"><span class="nav-number">1.</span> <span class="nav-text">代理模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#静态代理"><span class="nav-number">2.</span> <span class="nav-text">静态代理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动态代理"><span class="nav-number">3.</span> <span class="nav-text">动态代理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#JDK动态代理"><span class="nav-number">3.1.</span> <span class="nav-text">JDK动态代理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#cglib动态代理"><span class="nav-number">3.2.</span> <span class="nav-text">cglib动态代理</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">andy</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"pettyandydog"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+</body>
+</html>
