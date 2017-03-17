@@ -105,7 +105,7 @@
 概念CAS(compare and swap)，比较和交换，是原子操作的一种，可用于在多线程编程中实现不被打断的数据交换操作，从而避免多线程同时改写某一数据时由于执行顺序不确定性以及中断的不可预知性产生的数据不一致问题。 该操作通过将内存中的值与指定数据进行比较，当数值一样时将内存中的数据替换为新的值—来自wikiped">
 <meta property="og:image" content="http://pettyandydog.com/images/CAS/16121401.png">
 <meta property="og:image" content="http://pettyandydog.com/images/CAS/16121402.png">
-<meta property="og:updated_time" content="2017-03-06T06:11:41.958Z">
+<meta property="og:updated_time" content="2017-03-07T02:18:24.750Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="原子操作-CAS">
 <meta name="twitter:description" content="仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     
@@ -463,7 +463,7 @@
 <h3 id="JAVA"><a href="#JAVA" class="headerlink" title="JAVA"></a>JAVA</h3><p>java中实现了大量的CAS操作，在JDK1.5发布的java.util.concurrent包就是建立在CAS之上的，相对比与synchronized这种锁机制且阻塞的算法，无锁且非阻塞的CAS无疑在性能上有质的提升，来看看java对CAS的实现，以AtomicInteger的增量方法为例(基于JDK1.8)<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">incrementAndGet</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> unsafe.getAndAddInt(<span class="keyword">this</span>, valueOffset, <span class="number">1</span>) + <span class="number">1</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <p>这里会调用<code>sun.misc</code>包下的Unsafe类，这是一个调用底层指令集的final类，下面看一下getAndAddInt方法<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">getAndAddInt</span><span class="params">(Object var1, <span class="keyword">long</span> var2, <span class="keyword">int</span> var4)</span> </span>&#123;</div><div class="line">    <span class="keyword">int</span> var5;</div><div class="line">    <span class="keyword">do</span> &#123;</div><div class="line">        var5 = <span class="keyword">this</span>.getIntVolatile(var1, var2);</div><div class="line">    &#125; <span class="keyword">while</span>(!<span class="keyword">this</span>.compareAndSwapInt(var1, var2, var5, var5 + var4));</div><div class="line"></div><div class="line">    <span class="keyword">return</span> var5;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <p>在这里你会看见compareAndSwapInt方法，这是一个native的方法，用来调用CPU的CAS指令实现无锁且非阻塞的增量操作，这在concurrent包下有很多这样的操作，JDK1.8的concurrentHashMap放弃了分段锁的概念，采用了CAS操作，这大大的增加了多线程下的性能</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>很多时候在线程安全和性能方面很难得到权衡，线程安全的两大特性：可见性和原子性，原子性往往就要加上锁去实现，现在用CAS去替代原子性，volatile保证可见性，大大增加了多线程在操作上的性能</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>很多时候在线程安全和性能方面很难得到权衡，线程安全的三大特性：可见性，原子性和顺序性，原子性往往就要加上锁去实现，现在用CAS去替代原子性，volatile保证可见性和顺序性，大大增加了多线程在操作上的性能</p>
 <h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://zh.wikipedia.org/wiki/%E6%AF%94%E8%BE%83%E5%B9%B6%E4%BA%A4%E6%8D%A2" target="_blank" rel="external">https://zh.wikipedia.org/wiki/%E6%AF%94%E8%BE%83%E5%B9%B6%E4%BA%A4%E6%8D%A2</a><br><a href="http://zl198751.iteye.com/blog/1848575" target="_blank" rel="external">http://zl198751.iteye.com/blog/1848575</a></p>
 
       
@@ -608,7 +608,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-count">19</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -630,7 +630,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">20</span>
+                <span class="site-state-item-count">22</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
