@@ -113,7 +113,7 @@
 禁止重排序，指禁止代码在执行过程中为优化性能而编译的执行顺序
 
 如果在合适的">
-<meta property="og:updated_time" content="2017-05-22T10:02:00.933Z">
+<meta property="og:updated_time" content="2017-05-24T02:58:24.522Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="深入并发关键字-volatile">
 <meta name="twitter:description" content="仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     
@@ -477,9 +477,9 @@
 </ol>
 <p>处理器为了更加高效的运行，他不会直接与主内存进行通信，而是在先读取到其处理器内部缓存进行一系列的操作，但是不是立刻会回写到主内存中，对于volatile修饰的共享变量进行写操作，JVM会向该处理器发送一条Lock前缀的指令，锁住该缓存（早期的处理器是通过锁住整个总线，效率较低），并使用缓存一致性来确保修改的原子性，该操作称为“缓存锁定”，然后引起该处理器将内部缓存回写到主内存中，在确保缓存一致性的情况下，处理器通过嗅探技术访问主内存和内部缓存，确保处理器内部缓存和主内存上的状态保持一致，如果一个处理器在内部缓存对一个共享地址进行写操作时，该处理器会无效其对应的缓存，再下次访问该内存地址时，进行读取主内存到该处理器内部缓存。</p>
 <p>lock前缀指令也相当于一个内存屏障（Memory Barrier），如上所述，由于缓存锁定操作，这样让该指令执行完，下一个指令才能执行，这个就实现了禁止了指令重排序，回写主内存同时使其他cpu该内存地址无效化，这样也就实现了可见性。</p>
-<h2 id="volatile关键字的使用"><a href="#volatile关键字的使用" class="headerlink" title="volatile关键字的使用"></a>volatile关键字的使用</h2><p>如何使用volatile关键字，这里要了解确保并发安全的三个要素：原子性，可见性，顺序性，其中原子性指该操作不可分割，不受其他线程干扰，顺序性就是禁止指令重排序，volatile关键字保证了可见性和顺序性，如果共享变量具有原子性或者在一些原子操作的场合下，比如共享变量被concurrent包下的一些原子类修饰或者做一些<a href="http://pettyandydog.com/2016/06/06/cas/" title="CAS">CAS</a>的一些操作，使用volatile是一个好的选择。</p>
+<h2 id="volatile关键字的使用"><a href="#volatile关键字的使用" class="headerlink" title="volatile关键字的使用"></a>volatile关键字的使用</h2><p>如何使用volatile关键字，这里要了解确保并发安全的三个要素：原子性，可见性，顺序性，其中原子性指该操作不可分割，不受其他线程干扰，顺序性就是禁止指令重排序，对于关键字volatile来讲，volatile关键字保证了可见性和顺序性，同时它也是一个轻量级的synchronized,它在多处理器上的安全性体现在更加细微的操作，上述也提到，由于缓存一致性会保证单个读写操作的原子性，这样就符合并发安全的三要素了，然而在大多数程序中，大多数都是对一些共享变量的复合操作，比如i++操作，这就涉及到从主内存读取i到缓存中，在缓存中进行i+1的操作和将i写入主内存三个操作，这个就无法保证i++操作的原子性了，对于类似的复合操作来讲，如果共享变量具有原子性或者在一些原子操作的场合下，比如共享变量被concurrent包下的一些原子类修饰或者做一些<a href="http://pettyandydog.com/2016/06/06/cas/" title="CAS">CAS</a>的一些操作，使用volatile是一个好的选择。</p>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://ifeve.com/volatile/" target="_blank" rel="external">http://ifeve.com/volatile/</a></p>
-<p>《深入理解java虚拟机》第十二章</p>
+<p>周志明《深入理解java虚拟机》第十二章</p>
 
       
     </div>
@@ -527,6 +527,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/05/24/synchronized/" rel="prev" title="深入并发关键字-synchronized">
+                深入并发关键字-synchronized <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -600,7 +604,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">20</span>
+                <span class="site-state-item-count">21</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
