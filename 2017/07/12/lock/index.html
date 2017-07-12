@@ -1,0 +1,988 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="java,线程,并发," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     
+
+ 
+
+前言在并发访问一些共享资源的时候，锁是一种实现安全并发访问的手段，在深入并发关键字-synchronized一文中对JVM内置的锁机制进行了深入的分析，而里程碑意义的JDK1.5版本，JAVA大神Doug lea在java的代码层面上开发了一套锁机制，如下图所示：
+Lock在最顶层是一个Lock的接口，他实现了比使用Syn">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深入并发包-lock">
+<meta property="og:url" content="http://pettyandydog.com/2017/07/12/lock/index.html">
+<meta property="og:site_name" content="pettyandydog">
+<meta property="og:description" content="仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     
+
+ 
+
+前言在并发访问一些共享资源的时候，锁是一种实现安全并发访问的手段，在深入并发关键字-synchronized一文中对JVM内置的锁机制进行了深入的分析，而里程碑意义的JDK1.5版本，JAVA大神Doug lea在java的代码层面上开发了一套锁机制，如下图所示：
+Lock在最顶层是一个Lock的接口，他实现了比使用Syn">
+<meta property="og:image" content="http://pettyandydog.com/images/lock/1.png">
+<meta property="og:updated_time" content="2017-07-12T03:47:19.913Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="深入并发包-lock">
+<meta name="twitter:description" content="仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     
+
+ 
+
+前言在并发访问一些共享资源的时候，锁是一种实现安全并发访问的手段，在深入并发关键字-synchronized一文中对JVM内置的锁机制进行了深入的分析，而里程碑意义的JDK1.5版本，JAVA大神Doug lea在java的代码层面上开发了一套锁机制，如下图所示：
+Lock在最顶层是一个Lock的接口，他实现了比使用Syn">
+<meta name="twitter:image" content="http://pettyandydog.com/images/lock/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://pettyandydog.com/2017/07/12/lock/"/>
+
+
+
+
+
+  <title> 深入并发包-lock | pettyandydog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-85355450-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?0dd4e9ad043e96f01ff3cbd1033c29eb";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">pettyandydog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            文章
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocapitalize="off" autocomplete="off" autocorrect="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://pettyandydog.com/2017/07/12/lock/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="andy">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head_images/head.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="pettyandydog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                深入并发包-lock
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-07-12T11:34:14+08:00">
+                2017-07-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/后端/" itemprop="url" rel="index">
+                    <span itemprop="name">后端</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a class="cloud-tie-join-count" href="/2017/07/12/lock/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count join-count" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>仅供学习交流,如有错误请指出,如要转载请加上出处,谢谢     </p>
+</blockquote>
+<div></div> 
+
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在并发访问一些共享资源的时候，锁是一种实现安全并发访问的手段，在<a href="http://pettyandydog.com/2017/05/24/synchronized/#more" title="深入并发关键字-synchronized">深入并发关键字-synchronized</a>一文中对JVM内置的锁机制进行了深入的分析，而里程碑意义的JDK1.5版本，JAVA大神Doug lea在java的代码层面上开发了一套锁机制，如下图所示：<br><img src="/images/lock/1.png" alt=""></p>
+<h2 id="Lock"><a href="#Lock" class="headerlink" title="Lock"></a>Lock</h2><p>在最顶层是一个Lock的接口，他实现了比使用Synchronized的方法和语句更加广泛的锁定操作，代码如下所示（以下代码基于JDK1.8）<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Lock</span> </span>&#123;</div><div class="line"><span class="comment">//获取锁</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">lock</span><span class="params">()</span></span>;</div><div class="line"><span class="comment">//获取未中断线程的锁</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">lockInterruptibly</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException</span>;</div><div class="line"><span class="comment">//尝试在锁为空闲状态获取锁</span></div><div class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">tryLock</span><span class="params">()</span></span>;</div><div class="line"><span class="comment">//尝试在一定的时间段内，并且锁为空闲状态和为中断时获取锁</span></div><div class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">tryLock</span><span class="params">(<span class="keyword">long</span> time, TimeUnit unit)</span> <span class="keyword">throws</span> InterruptedException</span>;</div><div class="line"><span class="comment">//释放锁</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">unlock</span><span class="params">()</span></span>;</div><div class="line"><span class="comment">//获取一个绑定该锁的condition</span></div><div class="line"><span class="function">Condition <span class="title">newCondition</span><span class="params">()</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>如上代码所示，Lock接口定义了锁的基本语义和生命周期，而在获取锁的方式上，Lock提供了三种不同方式的获取锁操作：（1）可中断，（2）不可中断，（3）定时，适应不同的生产环境中，在其性能特征，排序保证或者其他的实现质量上会有所不同</p>
+<h3 id="ReentrantLock"><a href="#ReentrantLock" class="headerlink" title="ReentrantLock"></a>ReentrantLock</h3><p>在上一篇文章<a href="http://pettyandydog.com/2017/06/27/AQS/#more" title="深入并发包-AQS">深入并发包-AQS</a>中，以ReentrantLock为例介绍了AQS在并发同步上的控制，这里就不在赘述了</p>
+<h3 id="ReadWriteLock"><a href="#ReadWriteLock" class="headerlink" title="ReadWriteLock"></a>ReadWriteLock</h3><p>在ReentrantLock中，每一次获取锁都是独占锁，每一次只能是一个线程进行访问，但是在一些只是读取一些共享变量的场景下，并不需要独占锁来访问，这样并不利于并发性能，于是乎Doug lea将锁分割成一对相关的读锁和写锁更小的两个粒度，这和MySQL中的共享锁和排它锁类似（共享读锁，独享写锁），读锁允许多个线程同时保持运行，写锁是独占锁，只能一个线程保持运行，他们保持着一致性的内存同步，读锁的线程会看见写锁之前的版本所做的更新，ReadWriteLock接口提供了这样的语义，代码如下所示<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ReadWriteLock</span> </span>&#123;</div><div class="line">    <span class="comment">//获取读锁   </span></div><div class="line">    <span class="function">Lock <span class="title">readLock</span><span class="params">()</span></span>;</div><div class="line">    <span class="comment">//获取写锁</span></div><div class="line">    <span class="function">Lock <span class="title">writeLock</span><span class="params">()</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="ReentrantReadWriteLock"><a href="#ReentrantReadWriteLock" class="headerlink" title="ReentrantReadWriteLock"></a>ReentrantReadWriteLock</h3><p>ReentrantReadWriteLock是ReentrantLock接口的实现，在读写锁的基础上加上了重入性，来避免死锁，现在通过一个例子来进入ReentrantReadWriteLock的源码世界<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RWLock</span> </span>&#123;</div><div class="line"></div><div class="line">    ReadWriteLock readWriteLock ;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> i;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">RWLock</span><span class="params">()</span></span>&#123;</div><div class="line">        readWriteLock= <span class="keyword">new</span> ReentrantReadWriteLock();</div><div class="line">        i = <span class="number">0</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setI</span><span class="params">(<span class="keyword">int</span> i)</span> </span>&#123;</div><div class="line">        Lock lock = readWriteLock.writeLock();</div><div class="line">        lock.lock();</div><div class="line">        <span class="keyword">this</span>.i = i;</div><div class="line">        lock.unlock();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getI</span><span class="params">()</span> </span>&#123;</div><div class="line">        Lock lock = readWriteLock.readLock();</div><div class="line">        lock.lock();</div><div class="line">        <span class="keyword">int</span> r = i;</div><div class="line">        lock.unlock();</div><div class="line">        <span class="keyword">return</span> r;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>对于共享变量i的读与写，通过读写锁来控制，利用语句<code>new ReentrantReadWriteLock()</code>来创建对象<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">ReentrantReadWriteLock</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">this</span>(<span class="keyword">false</span>);</div><div class="line">&#125;</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">ReentrantReadWriteLock</span><span class="params">(<span class="keyword">boolean</span> fair)</span> </span>&#123;</div><div class="line">    sync = fair ? <span class="keyword">new</span> FairSync() : <span class="keyword">new</span> NonfairSync();</div><div class="line">    readerLock = <span class="keyword">new</span> ReadLock(<span class="keyword">this</span>);</div><div class="line">    writerLock = <span class="keyword">new</span> WriteLock(<span class="keyword">this</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>和ReentrantLock一样，锁的机制有两种，默认的是非公平锁，另一种是公平锁，sync实现了AQS，用于并发锁控制（这里不再赘述了，详情可以查看<a href="http://pettyandydog.com/2017/06/27/AQS/#more" title="深入并发包-AQS">深入并发包-AQS</a>），读写锁共享一个同步器sync，ReadLock和WriteLock是内部类，是Lock的实现类<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">WriteLock</span> <span class="keyword">implements</span> <span class="title">Lock</span>, <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span> </span></div><div class="line">&#123;......&#125;</div><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ReadLock</span> <span class="keyword">implements</span> <span class="title">Lock</span>, <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span> </span></div><div class="line">&#123;......&#125;</div></pre></td></tr></table></figure></p>
+<p>我们先来看写锁的获取与释放</p>
+<h4 id="WriteLock"><a href="#WriteLock" class="headerlink" title="WriteLock"></a>WriteLock</h4><h5 id="获取锁"><a href="#获取锁" class="headerlink" title="获取锁"></a>获取锁</h5><p>在上述的例子，i的setter中，会创建一个写锁来控制共享变量i的写入，通过<code>readWriteLock.writeLock();</code>来创建一个写锁<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> ReentrantReadWriteLock.<span class="function">WriteLock <span class="title">writeLock</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> writerLock; &#125;</div></pre></td></tr></table></figure></p>
+<p>然后再通过<code>lock.lock();</code>获取写锁<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">lock</span><span class="params">()</span> </span>&#123;</div><div class="line">    sync.acquire(<span class="number">1</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>这里会调用前面实现的同步器sync的acquire方法<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">acquire</span><span class="params">(<span class="keyword">int</span> arg)</span> </span>&#123;</div><div class="line">    <span class="comment">// 这里通过tryAcquire(1)会尝试获取锁，如果获取成功，直接返回true</span></div><div class="line">    <span class="comment">// 因为有可能直接就成功了呢，也就不需要进队列排队了，</span></div><div class="line">    <span class="comment">// 对于公平锁的语义就是：本来就没人持有锁，根本没必要进队列等待(又是挂起，又是等待被唤醒的)</span></div><div class="line">    <span class="keyword">if</span> (!tryAcquire(arg) &amp;&amp;</div><div class="line">        <span class="comment">// tryAcquire(arg)没有成功，这个时候需要把当前线程挂起，放到阻塞队列中。</span></div><div class="line">        acquireQueued(addWaiter(Node.EXCLUSIVE), arg))</div><div class="line">        selfInterrupt();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>当前线程会调用<code>tryAcquire(arg)</code>方法,尝试去获取锁<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">tryAcquire</span><span class="params">(<span class="keyword">int</span> acquires)</span> </span>&#123;</div><div class="line">    <span class="comment">/*</span></div><div class="line">     * Walkthrough:</div><div class="line">     * 1. If read count nonzero or write count nonzero</div><div class="line">     *    and owner is a different thread, fail.</div><div class="line">     * 2. If count would saturate, fail. (This can only</div><div class="line">     *    happen if count is already nonzero.)</div><div class="line">     * 3. Otherwise, this thread is eligible for lock if</div><div class="line">     *    it is either a reentrant acquire or</div><div class="line">     *    queue policy allows it. If so, update state</div><div class="line">     *    and set owner.</div><div class="line">     */</div><div class="line">    Thread current = Thread.currentThread();<span class="comment">//获取当前线程</span></div><div class="line">    <span class="keyword">int</span> c = getState();<span class="comment">//c是锁状态为：高位16位表示共享锁的数量，低位16位表示独占锁的数量</span></div><div class="line">    <span class="keyword">int</span> w = exclusiveCount(c);<span class="comment">//取低16位的值，也就是写锁状态位：不等于0表示写锁被占用</span></div><div class="line">    <span class="keyword">if</span> (c != <span class="number">0</span>) &#123;</div><div class="line">        <span class="comment">// (Note: if c != 0 and w == 0 then shared count != 0)</span></div><div class="line">        <span class="comment">//这里c != 0 and w == 0表示当前没有写锁，只有读锁被占用或者当前线程不是当前独占锁的线程（重入锁的特性），就直接失败，返回false</span></div><div class="line">        <span class="keyword">if</span> (w == <span class="number">0</span> || current != getExclusiveOwnerThread())</div><div class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">        <span class="keyword">if</span> (w + exclusiveCount(acquires) &gt; MAX_COUNT) <span class="comment">//锁的最大值限制最多支持65535个写锁和读锁 </span></div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"Maximum lock count exceeded"</span>);</div><div class="line">        <span class="comment">// Reentrant acquire</span></div><div class="line">        setState(c + acquires);<span class="comment">//运行到这里，表示是重入锁，并修改锁的状态</span></div><div class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="comment">//c==0表示如果当前没有线程获取锁，该线程会获取锁并且CAS设置状态</span></div><div class="line">    <span class="keyword">if</span> (writerShouldBlock() ||</div><div class="line">        !compareAndSetState(c, c + acquires))</div><div class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    setExclusiveOwnerThread(current); <span class="comment">//成功就设置当前线程获取独占锁</span></div><div class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">&#125;</div><div class="line"><span class="comment">//运行完tryAcquire方法我们回头看看上一级的语句，如下</span></div><div class="line"><span class="keyword">if</span> (!tryAcquire(arg) &amp;&amp;</div><div class="line">        <span class="comment">// tryAcquire(arg)没有成功，这个时候需要把当前线程挂起，放到阻塞队列中。</span></div><div class="line">        acquireQueued(addWaiter(Node.EXCLUSIVE), arg))</div><div class="line">        selfInterrupt()</div></pre></td></tr></table></figure></p>
+<p>如果当前尝试获取失败，会调用<code>acquireQueued(addWaiter(Node.EXCLUSIVE), arg)</code>放入阻塞队列中，再中断挂起，接下来看看addWaiter方法（注意：加入阻塞队列的方法和ReentrantLock是一样的，如果在深入并发包-AQS已经了解了，可以忽略）<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line">  * Creates and enqueues node for current thread and given mode.</div><div class="line">  *</div><div class="line">  * <span class="doctag">@param</span> mode Node.EXCLUSIVE for exclusive, Node.SHARED for shared</div><div class="line">  * <span class="doctag">@return</span> the new node</div><div class="line">  */</div><div class="line"> <span class="comment">// 此方法的作用是把线程包装成node，同时进入到队列中</span></div><div class="line"> <span class="comment">// 参数mode此时是Node.EXCLUSIVE，代表独占模式</span></div><div class="line"> <span class="function"><span class="keyword">private</span> Node <span class="title">addWaiter</span><span class="params">(Node mode)</span> </span>&#123;</div><div class="line">     <span class="comment">//mode值下一个等待的线程节点，默认为null</span></div><div class="line">     Node node = <span class="keyword">new</span> Node(Thread.currentThread(), mode);</div><div class="line">     <span class="comment">// Try the fast path of enq; backup to full enq on failure</span></div><div class="line">     <span class="comment">// 以下几行代码想把当前node加到链表的最后面去，也就是进到阻塞队列的最后</span></div><div class="line">     Node pred = tail;</div><div class="line">   </div><div class="line">     <span class="comment">// tail!=null =&gt; 队列不为空(tail==head的时候，其实队列是空的，不过不管这个吧)</span></div><div class="line">     <span class="keyword">if</span> (pred != <span class="keyword">null</span>) &#123; </div><div class="line">         <span class="comment">// 设置自己的前驱 为当前的队尾节点</span></div><div class="line">         node.prev = pred; </div><div class="line">         <span class="comment">// 用CAS把自己设置为队尾, 如果成功后，tail == node了</span></div><div class="line">         <span class="keyword">if</span> (compareAndSetTail(pred, node)) &#123; </div><div class="line">             <span class="comment">// 进到这里说明设置成功，当前node==tail, 将自己与之前的队尾相连，</span></div><div class="line">             <span class="comment">// 上面已经有 node.prev = pred</span></div><div class="line">             <span class="comment">// 加上下面这句，也就实现了和之前的尾节点双向连接了</span></div><div class="line">             pred.next = node;</div><div class="line">             <span class="comment">// 线程入队了，可以返回了</span></div><div class="line">             <span class="keyword">return</span> node;</div><div class="line">         &#125;</div><div class="line">     &#125;</div><div class="line">     <span class="comment">// 仔细看看上面的代码，如果会到这里，</span></div><div class="line">     <span class="comment">// 说明 pred==null(队列是空的) 或者 CAS失败(有线程在竞争入队)</span></div><div class="line">     enq(node);</div><div class="line">     <span class="keyword">return</span> node;</div><div class="line"> &#125;</div></pre></td></tr></table></figure></p>
+<p>如果队列是空的，或者有竞争，就调用enq方法采用自旋的方式来加入阻塞队列，如下所示<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line">    * Inserts node into queue, initializing if necessary. See picture above.</div><div class="line">    * <span class="doctag">@param</span> node the node to insert</div><div class="line">    * <span class="doctag">@return</span> node's predecessor</div><div class="line">    */</div><div class="line">   <span class="comment">// 采用自旋的方式入队</span></div><div class="line">   <span class="comment">// 之前说过，到这个方法只有两种可能：等待队列为空，或者有线程竞争入队，</span></div><div class="line">   <span class="comment">// 自旋在这边的语义是：CAS设置tail过程中，竞争一次竞争不到，我就多次竞争，总会排到的</span></div><div class="line">   <span class="function"><span class="keyword">private</span> Node <span class="title">enq</span><span class="params">(<span class="keyword">final</span> Node node)</span> </span>&#123;</div><div class="line">       <span class="keyword">for</span> (;;) &#123;</div><div class="line">           Node t = tail;</div><div class="line">           <span class="comment">// 之前说过，队列为空也会进来这里</span></div><div class="line">           <span class="keyword">if</span> (t == <span class="keyword">null</span>) &#123; <span class="comment">// Must initialize</span></div><div class="line">               <span class="comment">// 初始化head节点</span></div><div class="line">               <span class="comment">// 细心的读者会知道原来head和tail初始化的时候都是null，反正我不细心</span></div><div class="line">               <span class="comment">// 还是一步CAS，你懂的，现在可能是很多线程同时进来呢</span></div><div class="line">               <span class="keyword">if</span> (compareAndSetHead(<span class="keyword">new</span> Node()))</div><div class="line">                   <span class="comment">// 给后面用：这个时候head节点的waitStatus==0, 看new Node()构造方法就知道了</span></div><div class="line">                 </div><div class="line">                   <span class="comment">// 这个时候有了head，但是tail还是null，设置一下，</span></div><div class="line">                   <span class="comment">// 把tail指向head，放心，马上就有线程要来了，到时候tail就要被抢了</span></div><div class="line">                   <span class="comment">// 注意：这里只是设置了tail=head，这里可没return哦，没有return，没有return</span></div><div class="line">                   <span class="comment">// 所以，设置完了以后，继续for循环，下次就到下面的else分支了</span></div><div class="line">                   tail = head;</div><div class="line">           &#125; <span class="keyword">else</span> &#123;</div><div class="line">               <span class="comment">// 下面几行，和上一个方法 addWaiter 是一样的，</span></div><div class="line">               <span class="comment">// 只是这个套在无限循环里，反正就是将当前线程排到队尾，有线程竞争的话排不上重复排</span></div><div class="line">               node.prev = t;</div><div class="line">               <span class="keyword">if</span> (compareAndSetTail(t, node)) &#123;</div><div class="line">                   t.next = node;</div><div class="line">                   <span class="keyword">return</span> t;</div><div class="line">               &#125;</div><div class="line">           &#125;</div><div class="line">       &#125;</div><div class="line">   &#125;</div><div class="line">   <span class="comment">// 然后再次回到这段代码了</span></div><div class="line">   <span class="comment">// if (!tryAcquire(arg) </span></div><div class="line">   <span class="comment">//        &amp;&amp; acquireQueued(addWaiter(Node.EXCLUSIVE), arg)) </span></div><div class="line">   <span class="comment">//     selfInterrupt();</span></div></pre></td></tr></table></figure></p>
+<p>我们再来看一看acquireQueued方法，在进入阻塞队列中，他会再次尝试获取锁，如下所示<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 下面这个方法，参数node，经过addWaiter(Node.EXCLUSIVE)，此时已经进入阻塞队列</span></div><div class="line"><span class="comment">// 注意一下：如果acquireQueued(addWaiter(Node.EXCLUSIVE), arg))返回true的话，</span></div><div class="line"><span class="comment">// 意味着上面这段代码将进入selfInterrupt()，所以正常情况下，下面应该返回false</span></div><div class="line"><span class="comment">// 这个方法非常重要，应该说真正的线程挂起，然后被唤醒后去获取锁，都在这个方法里了</span></div><div class="line"><span class="function"><span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">acquireQueued</span><span class="params">(<span class="keyword">final</span> Node node, <span class="keyword">int</span> arg)</span> </span>&#123;</div><div class="line">    <span class="keyword">boolean</span> failed = <span class="keyword">true</span>;</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        <span class="keyword">boolean</span> interrupted = <span class="keyword">false</span>;</div><div class="line">        <span class="keyword">for</span> (;;) &#123;</div><div class="line">            <span class="keyword">final</span> Node p = node.predecessor();<span class="comment">//获取当前node的前一个node</span></div><div class="line">            <span class="comment">// p == head 说明当前节点虽然进到了阻塞队列，但是是阻塞队列的第一个，因为它的前驱是head</span></div><div class="line">            <span class="comment">// 注意，阻塞队列不包含head节点，head一般指的是占有锁的线程，head后面的才称为阻塞队列</span></div><div class="line">            <span class="comment">// 所以当前节点可以去试抢一下锁</span></div><div class="line">            <span class="comment">// 这里我们说一下，为什么可以去试试：</span></div><div class="line">            <span class="comment">// 首先，它是队头，这个是第一个条件，其次，当前的head有可能是刚刚初始化的node，</span></div><div class="line">            <span class="comment">// enq(node) 方法里面有提到，head是延时初始化的，而且new Node()的时候没有设置任何线程</span></div><div class="line">            <span class="comment">// 也就是说，当前的head不属于任何一个线程，所以作为队头，可以去试一试，</span></div><div class="line">            <span class="comment">// tryAcquire已经分析过了, 忘记了请往前看一下，就是简单用CAS试操作一下state</span></div><div class="line">            <span class="keyword">if</span> (p == head &amp;&amp; tryAcquire(arg)) &#123;</div><div class="line">                setHead(node);</div><div class="line">                p.next = <span class="keyword">null</span>; <span class="comment">// help GC</span></div><div class="line">                failed = <span class="keyword">false</span>;</div><div class="line">                <span class="keyword">return</span> interrupted;</div><div class="line">            &#125;</div><div class="line">            <span class="comment">// 到这里，说明上面的if分支没有成功，要么当前node本来就不是队头，</span></div><div class="line">            <span class="comment">// 要么就是tryAcquire(arg)没有抢赢别人，继续往下看</span></div><div class="line">            <span class="keyword">if</span> (shouldParkAfterFailedAcquire(p, node) &amp;&amp;</div><div class="line">                parkAndCheckInterrupt())</div><div class="line">                interrupted = <span class="keyword">true</span>;</div><div class="line">        &#125;</div><div class="line">    &#125; <span class="keyword">finally</span> &#123;</div><div class="line">        <span class="keyword">if</span> (failed)</div><div class="line">            cancelAcquire(node);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>当前线程获取锁失败会调用shouldParkAfterFailedAcquire方法，如下所示<br>  <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 刚刚说过，会到这里就是没有抢到锁呗，这个方法说的是："当前线程没有抢到锁，是否需要挂起当前线程？"</span></div><div class="line">    <span class="comment">// 第一个参数是前驱节点，第二个参数才是代表当前线程的节点</span></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">shouldParkAfterFailedAcquire</span><span class="params">(Node pred, Node node)</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> ws = pred.waitStatus;</div><div class="line">        <span class="comment">//下面的三个判断符合下列三种规则</span></div><div class="line">        <span class="comment">// 规则1：如果前继的节点状态为SIGNAL，表明当前节点需要unpark(唤醒)，则返回成功，此时 acquireQueued方法的第12行（parkAndCheckInterrupt）将导致线程阻塞</span></div><div class="line">        <span class="comment">// 规则2：如果前继节点状态为CANCELLED(ws&gt;0)，说明前置节点已经被放弃，则回溯到一个非取消的前继节点，返回false，acquireQueued方法的无限循环将递归调用该方法，直至规则1返回true，导致线程阻塞</span></div><div class="line">        <span class="comment">// 规则3：如果前继节点状态为非SIGNAL、非CANCELLED，则设置前继的状态为SIGNAL，返回false后进入acquireQueued的无限循环，与规则2同</span></div><div class="line">        </div><div class="line">        <span class="comment">// 前驱节点的 waitStatus == -1 ，说明前驱节点状态正常，当前线程需要挂起，直接可以返回true</span></div><div class="line">        <span class="keyword">if</span> (ws == Node.SIGNAL)</div><div class="line">            <span class="comment">/*</span></div><div class="line">             * This node has already set status asking a release</div><div class="line">             * to signal it, so it can safely park.</div><div class="line">             */</div><div class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">        </div><div class="line">        <span class="comment">// 前驱节点 waitStatus大于0 ，之前说过，大于0 说明前驱节点取消了排队。这里需要知道这点：</span></div><div class="line">        <span class="comment">// 进入阻塞队列排队的线程会被挂起，而唤醒的操作是由前驱节点完成的。</span></div><div class="line">        <span class="comment">// 所以下面这块代码说的是将当前节点的prev指向waitStatus&lt;=0的节点，</span></div><div class="line">        <span class="keyword">if</span> (ws &gt; <span class="number">0</span>) &#123;</div><div class="line">            <span class="comment">/*</span></div><div class="line">             * Predecessor was cancelled. Skip over predecessors and</div><div class="line">             * indicate retry.</div><div class="line">             */</div><div class="line">            <span class="keyword">do</span> &#123;</div><div class="line">                node.prev = pred = pred.prev;</div><div class="line">            &#125; <span class="keyword">while</span> (pred.waitStatus &gt; <span class="number">0</span>);</div><div class="line">            pred.next = node;</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            <span class="comment">/*</span></div><div class="line">             * waitStatus must be 0 or PROPAGATE.  Indicate that we</div><div class="line">             * need a signal, but don't park yet.  Caller will need to</div><div class="line">             * retry to make sure it cannot acquire before parking.</div><div class="line">             */</div><div class="line">            <span class="comment">// 仔细想想，如果进入到这个分支意味着什么</span></div><div class="line">            <span class="comment">// 前驱节点的waitStatus不等于-1和1，那也就是只可能是0，-2，-3</span></div><div class="line">            <span class="comment">// 在我们前面的源码中，都没有看到有设置waitStatus的，所以每个新的node入队时，waitStatu都是0</span></div><div class="line">            <span class="comment">// 用CAS将前驱节点的waitStatus设置为Node.SIGNAL(也就是-1)</span></div><div class="line">            compareAndSetWaitStatus(pred, ws, Node.SIGNAL);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    &#125;</div><div class="line"><span class="comment">// 回到下面的代码</span></div><div class="line"><span class="comment">// if (shouldParkAfterFailedAcquire(p, node) &amp;&amp;</span></div><div class="line"><span class="comment">//                    parkAndCheckInterrupt())</span></div></pre></td></tr></table></figure></p>
+<p>如果此线程取消了竞争（也就是waitStatus&gt;0），就会进入阻塞中断，这个时候需要一个契机将他唤醒，所有要不断循环前一个节点作为需要作为唤醒的契机（这在后面的释放锁操作会有说明），返回false，如果返回true的话，接下来会调用parkAndCheckInterrupt方法来检查中断操作，如下所示<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 这个方法很简单，因为前面返回true，所以需要挂起线程，这个方法就是负责挂起线程的</span></div><div class="line"><span class="comment">// 这里用了LockSupport.park(this)来挂起线程，然后就停在这里了，等待被唤醒=======</span></div><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">boolean</span>  <span class="title">parkAndCheckInterrupt</span><span class="params">()</span> </span>&#123;</div><div class="line">    LockSupport.park(<span class="keyword">this</span>);</div><div class="line">    <span class="keyword">return</span> Thread.interrupted();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h5 id="释放锁"><a href="#释放锁" class="headerlink" title="释放锁"></a>释放锁</h5><p>上述就是获取写锁的过程，在i的setter方法中，将i写入之后会调用lock.unLock()方法去释放锁(这里与<a href="http://pettyandydog.com/2017/06/27/AQS/#more" title="深入并发包-AQS">深入并发包-AQS</a>中独占锁的解锁过程一样，如有了解，可以忽略)<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">unlock</span><span class="params">()</span> </span>&#123;</div><div class="line">    sync.release(<span class="number">1</span>);</div><div class="line">&#125;</div><div class="line">他会调用release(<span class="number">1</span>)方法,如下所示</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">release</span><span class="params">(<span class="keyword">int</span> arg)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (tryRelease(arg)) &#123;</div><div class="line">        Node h = head;</div><div class="line">        <span class="keyword">if</span> (h != <span class="keyword">null</span> &amp;&amp; h.waitStatus != <span class="number">0</span>)</div><div class="line">            unparkSuccessor(h);</div><div class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>上述会尝试执行释放锁的操作，调用FairSync实现的tryRelease方法，和获取锁的路子类似<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">tryRelease</span><span class="params">(<span class="keyword">int</span> releases)</span> </span>&#123;</div><div class="line">    <span class="keyword">int</span> c = getState() - releases;</div><div class="line">    <span class="keyword">if</span> (Thread.currentThread() != getExclusiveOwnerThread())</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalMonitorStateException();</div><div class="line">    <span class="comment">// 是否完全释放锁</span></div><div class="line">    <span class="keyword">boolean</span> free = <span class="keyword">false</span>;</div><div class="line">    <span class="comment">// 其实就是重入的问题，如果c==0，也就是说没有嵌套锁了，可以释放了，否则还不能释放掉</span></div><div class="line">    <span class="keyword">if</span> (c == <span class="number">0</span>) &#123;</div><div class="line">        free = <span class="keyword">true</span>;</div><div class="line">        setExclusiveOwnerThread(<span class="keyword">null</span>);</div><div class="line">    &#125;</div><div class="line">    setState(c);</div><div class="line">    <span class="keyword">return</span> free;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>如果释放锁成功，且head不为空就会调用unparkSuccessor方法来唤醒后继的线程，如下所示：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 唤醒后继节点</span></div><div class="line"><span class="comment">// 从上面调用处知道，参数node是head头结点</span></div><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">unparkSuccessor</span><span class="params">(Node node)</span> </span>&#123;</div><div class="line">    <span class="comment">/*</span></div><div class="line">     * If status is negative (i.e., possibly needing signal) try</div><div class="line">     * to clear in anticipation of signalling.  It is OK if this</div><div class="line">     * fails or if status is changed by waiting thread.</div><div class="line">     */</div><div class="line">    <span class="keyword">int</span> ws = node.waitStatus;</div><div class="line">    <span class="comment">// 如果head节点当前waitStatus&lt;0, 将其修改为0</span></div><div class="line">    <span class="keyword">if</span> (ws &lt; <span class="number">0</span>)</div><div class="line">        compareAndSetWaitStatus(node, ws, <span class="number">0</span>);</div><div class="line">    <span class="comment">/*</span></div><div class="line">     * Thread to unpark is held in successor, which is normally</div><div class="line">     * just the next node.  But if cancelled or apparently null,</div><div class="line">     * traverse backwards from tail to find the actual</div><div class="line">     * non-cancelled successor.</div><div class="line">     */</div><div class="line">    <span class="comment">// 下面的代码就是唤醒后继节点，但是有可能后继节点取消了等待（waitStatus==1）</span></div><div class="line">    <span class="comment">// 从队尾往前找，找到waitStatus&lt;=0的所有节点中排在最前面的</span></div><div class="line">    Node s = node.next;</div><div class="line">    <span class="keyword">if</span> (s == <span class="keyword">null</span> || s.waitStatus &gt; <span class="number">0</span>) &#123;</div><div class="line">        s = <span class="keyword">null</span>;</div><div class="line">        <span class="comment">// 从后往前找，仔细看代码，不必担心中间有节点取消(waitStatus==1)的情况</span></div><div class="line">        <span class="keyword">for</span> (Node t = tail; t != <span class="keyword">null</span> &amp;&amp; t != node; t = t.prev)</div><div class="line">            <span class="keyword">if</span> (t.waitStatus &lt;= <span class="number">0</span>)</div><div class="line">                s = t;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (s != <span class="keyword">null</span>)</div><div class="line">        <span class="comment">// 唤醒线程</span></div><div class="line">        LockSupport.unpark(s.thread);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>唤醒的线程会在如下代码继续进行<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">parkAndCheckInterrupt</span><span class="params">()</span> </span>&#123;</div><div class="line">    LockSupport.park(<span class="keyword">this</span>); <span class="comment">// 刚刚线程被挂起在这里了</span></div><div class="line">    <span class="keyword">return</span> Thread.interrupted();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>注意：LockSupport是并发包中针对线程阻塞操作的工具类</strong></p>
+<h4 id="ReadLock"><a href="#ReadLock" class="headerlink" title="ReadLock"></a>ReadLock</h4><p>分析完例子中i的setter方法中写锁的获取锁与释放锁，现在来看看例子中i的getter方法中读锁的获取锁与释放锁</p>
+<h5 id="获取锁-1"><a href="#获取锁-1" class="headerlink" title="获取锁"></a>获取锁</h5><p>在例子中i的getter方法，通过readWriteLock.readLock()获取读锁<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> ReentrantReadWriteLock.<span class="function">ReadLock  <span class="title">readLock</span><span class="params">()</span>  </span>&#123; <span class="keyword">return</span> readerLock; &#125;</div></pre></td></tr></table></figure></p>
+<p>下面再通过<code>lock.lock()</code>获取读锁<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">lock</span><span class="params">()</span> </span>&#123;</div><div class="line">    sync.acquireShared(<span class="number">1</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>这里会调用同步器sync的acquireShared方法<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//这里会调用tryAcquireShared方法来尝试以共享的模式获取锁，忽略中断</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">acquireShared</span><span class="params">(<span class="keyword">int</span> arg)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (tryAcquireShared(arg) &lt; <span class="number">0</span>)</div><div class="line">        doAcquireShared(arg);<span class="comment">//阻塞排队</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>和独占锁的套路一样，都会先去通过tryAcquireShared尝试获取共享锁<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">tryAcquireShared</span><span class="params">(<span class="keyword">int</span> unused)</span> </span>&#123;</div><div class="line">          </div><div class="line">            Thread current = Thread.currentThread();</div><div class="line">            <span class="comment">//c是锁状态为：高位16位表示共享锁的数量，低位16位表示独占锁的数量</span></div><div class="line">            <span class="keyword">int</span> c = getState();</div><div class="line">            <span class="comment">//exclusiveCount(c) 取低16位的值，也就是写锁状态位：不等于0表示写锁被占用</span></div><div class="line">            <span class="keyword">if</span> (exclusiveCount(c) != <span class="number">0</span> &amp;&amp;</div><div class="line">                getExclusiveOwnerThread() != current)</div><div class="line">                <span class="comment">//有写锁被其他线程占用，获取读锁失败</span></div><div class="line">                <span class="keyword">return</span> -<span class="number">1</span>;</div><div class="line"></div><div class="line">            <span class="comment">//取高16位的值，读锁状态位</span></div><div class="line">            <span class="keyword">int</span> r = sharedCount(c);</div><div class="line">            <span class="comment">//readerShouldBlock()根据读锁获取策略，返回是否阻塞当前读锁获取操作。后面会详细说明此方法</span></div><div class="line">            <span class="keyword">if</span> (!readerShouldBlock() &amp;&amp;</div><div class="line">                r &lt; MAX_COUNT &amp;&amp;</div><div class="line">                <span class="comment">//cas修改高16位的读锁状态，即获取读锁</span></div><div class="line">                compareAndSetState(c, c + SHARED_UNIT)) &#123;</div><div class="line">                </div><div class="line">                <span class="comment">//首次获取读锁</span></div><div class="line">                <span class="keyword">if</span> (r == <span class="number">0</span>) &#123;</div><div class="line">                    <span class="comment">//缓存首次获取读锁的线程，及其读锁重入次数</span></div><div class="line">                    firstReader = current;</div><div class="line">                    firstReaderHoldCount = <span class="number">1</span>;</div><div class="line"></div><div class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (firstReader == current) &#123; <span class="comment">//如果获取锁（并不是第一个），直接读锁的数量++</span></div><div class="line">                    firstReaderHoldCount++;</div><div class="line"></div><div class="line">                &#125; <span class="keyword">else</span> &#123;<span class="comment">//如果是重入锁</span></div><div class="line">                    <span class="comment">//cachedHoldCounter是最后获取锁的线程的读锁重入次数</span></div><div class="line">                    HoldCounter rh = cachedHoldCounter;</div><div class="line"></div><div class="line">                    <span class="keyword">if</span> (rh == <span class="keyword">null</span> || rh.tid != getThreadId(current))</div><div class="line">                        <span class="comment">//readHolds是缓存了当前线程的读锁重入次数的ThreadLocal</span></div><div class="line">                        <span class="comment">//当前线程自然是最后获取锁的线程，故将当前线程的holdCounter赋给cachedHoldCounter</span></div><div class="line">                        cachedHoldCounter = rh = readHolds.get();</div><div class="line">                    <span class="keyword">else</span> <span class="keyword">if</span> (rh.count == <span class="number">0</span>)</div><div class="line">                        <span class="comment">//缓存当前线程的holdCounter</span></div><div class="line">                        <span class="comment">//fullTryAcquireShared()方法中，</span></div><div class="line">                        <span class="comment">//获取读锁失败的线程会执行：readHolds.remove()，故此时需要重新设置 </span></div><div class="line">                        readHolds.set(rh);</div><div class="line"></div><div class="line">                    rh.count++;</div><div class="line">                &#125;</div><div class="line">                <span class="keyword">return</span> <span class="number">1</span>;</div><div class="line">            &#125;</div><div class="line">            <span class="comment">//首次获取读锁失败后，重试获取</span></div><div class="line">            <span class="keyword">return</span> fullTryAcquireShared(current);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>获取读锁失败的话，会调用fullTryAcquireShared方法以自旋的方式去重新获取锁<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line">         * Full version of acquire for reads, that handles CAS misses</div><div class="line">         * and reentrant reads not dealt with in tryAcquireShared.</div><div class="line">         */</div><div class="line">        <span class="function"><span class="keyword">final</span> <span class="keyword">int</span> <span class="title">fullTryAcquireShared</span><span class="params">(Thread current)</span> </span>&#123;</div><div class="line">            <span class="comment">//rh表示当前线程的锁计数器</span></div><div class="line">            HoldCounter rh = <span class="keyword">null</span>;</div><div class="line">            <span class="keyword">for</span> (;;) &#123;</div><div class="line">                <span class="keyword">int</span> c = getState();</div><div class="line"></div><div class="line">                <span class="comment">//写锁被占用</span></div><div class="line">                <span class="keyword">if</span> (exclusiveCount(c) != <span class="number">0</span>) &#123;</div><div class="line">                    <span class="comment">//如果其他线程占用，读锁获取失败。如果当前线程占用，表示“锁降级”。</span></div><div class="line">                    <span class="keyword">if</span> (getExclusiveOwnerThread() != current)</div><div class="line">                        <span class="keyword">return</span> -<span class="number">1</span>;</div><div class="line">                   </div><div class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (readerShouldBlock()) &#123;</div><div class="line">                    <span class="comment">//重入锁不需要阻塞。</span></div><div class="line"></div><div class="line">                    <span class="comment">// Make sure we're not acquiring read lock reentrantly</span></div><div class="line">                    <span class="keyword">if</span> (firstReader == current) &#123;</div><div class="line">                        <span class="comment">// assert firstReaderHoldCount &gt; 0;</span></div><div class="line">                        <span class="comment">//当前线程就是第一个获取读锁的线程，那么此时当然是重入锁。</span></div><div class="line">                    &#125; <span class="keyword">else</span> &#123;</div><div class="line">                        <span class="keyword">if</span> (rh == <span class="keyword">null</span>) &#123;</div><div class="line">                            rh = cachedHoldCounter;</div><div class="line">                            <span class="keyword">if</span> (rh == <span class="keyword">null</span> || rh.tid != current.getId()) &#123;</div><div class="line">                                rh = readHolds.get();</div><div class="line">                                <span class="keyword">if</span> (rh.count == <span class="number">0</span>)</div><div class="line">                                    <span class="comment">//线程阻塞之前，清空readHolds</span></div><div class="line">                                    readHolds.remove();</div><div class="line">                            &#125;</div><div class="line">                        &#125;</div><div class="line">                        <span class="keyword">if</span> (rh.count == <span class="number">0</span>)</div><div class="line">                            <span class="comment">//当前线程的锁计数器为0，非重入锁，需要阻塞。</span></div><div class="line">                            <span class="keyword">return</span> -<span class="number">1</span>;</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">                <span class="keyword">if</span> (sharedCount(c) == MAX_COUNT)</div><div class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"Maximum lock count exceeded"</span>);</div><div class="line"></div><div class="line">                <span class="comment">//cas设置读锁状态位</span></div><div class="line">                <span class="keyword">if</span> (compareAndSetState(c, c + SHARED_UNIT)) &#123;</div><div class="line"></div><div class="line">                    <span class="keyword">if</span> (sharedCount(c) == <span class="number">0</span>) &#123;</div><div class="line">                        <span class="comment">//缓存首次获取读锁的线程，以及锁计数器</span></div><div class="line">                        firstReader = current;</div><div class="line">                        firstReaderHoldCount = <span class="number">1</span>;</div><div class="line">                    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (firstReader == current) &#123;</div><div class="line">                        firstReaderHoldCount++;</div><div class="line">                    &#125; <span class="keyword">else</span> &#123;</div><div class="line">                        <span class="keyword">if</span> (rh == <span class="keyword">null</span>)</div><div class="line">                            rh = cachedHoldCounter;</div><div class="line">                        <span class="keyword">if</span> (rh == <span class="keyword">null</span> || rh.tid != current.getId())</div><div class="line">                            rh = readHolds.get();</div><div class="line">                        <span class="keyword">else</span> <span class="keyword">if</span> (rh.count == <span class="number">0</span>)</div><div class="line">                            <span class="comment">//锁计数器放入ThreadLocal</span></div><div class="line">                            readHolds.set(rh);</div><div class="line"></div><div class="line">                        rh.count++;</div><div class="line">                        <span class="comment">//此时rh就是最后获取读锁的线程的锁计数器</span></div><div class="line">                        cachedHoldCounter = rh; <span class="comment">// cache for release</span></div><div class="line">                    &#125;</div><div class="line">                    <span class="keyword">return</span> <span class="number">1</span>;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line"><span class="comment">//回头再看看上一级的方法</span></div><div class="line"><span class="keyword">if</span> (tryAcquireShared(arg) &lt; <span class="number">0</span>)</div><div class="line">        doAcquireShared(arg);<span class="comment">//阻塞排队</span></div></pre></td></tr></table></figure></p>
+<p><strong>注意：这里涉及到锁降级的情况，如果在当前线程内，已经拥有了写锁了，再去获取读锁的话，就会将当前线程的写锁降级为读锁，在代码 <code>if (exclusiveCount(c) != 0)</code> 和<code>if (getExclusiveOwnerThread() != current)</code>两个去判断</strong></p>
+<p>如果获取读锁失败的话,调用doAcquireShared方法排队阻塞，和独占锁的acquireQueued方法类似<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">doAcquireShared</span><span class="params">(<span class="keyword">int</span> arg)</span> </span>&#123;</div><div class="line">    <span class="keyword">final</span> Node node = addWaiter(Node.SHARED);<span class="comment">//加入阻塞等待队列</span></div><div class="line">    <span class="keyword">boolean</span> failed = <span class="keyword">true</span>;</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        <span class="keyword">boolean</span> interrupted = <span class="keyword">false</span>;</div><div class="line">        <span class="keyword">for</span> (;;) &#123;</div><div class="line">            <span class="keyword">final</span> Node p = node.predecessor();<span class="comment">//获取当前node的前一个node</span></div><div class="line">            <span class="comment">// p == head 说明当前节点虽然进到了阻塞队列，但是是阻塞队列的第一个，因为它的前驱是head</span></div><div class="line">            <span class="comment">// 注意，阻塞队列不包含head节点，head一般指的是占有锁的线程，head后面的才称为阻塞队列</span></div><div class="line">            <span class="comment">// 所以当前节点可以去试抢一下锁</span></div><div class="line">            <span class="keyword">if</span> (p == head) &#123;</div><div class="line">                <span class="keyword">int</span> r = tryAcquireShared(arg);<span class="comment">//尝试获取锁</span></div><div class="line">                <span class="keyword">if</span> (r &gt;= <span class="number">0</span>) &#123; <span class="comment">//如果获取成功</span></div><div class="line">                    setHeadAndPropagate(node, r);<span class="comment">//设置当前节点为head，并且唤醒后续的节点</span></div><div class="line">                    p.next = <span class="keyword">null</span>; <span class="comment">// help GC</span></div><div class="line">                    <span class="keyword">if</span> (interrupted)</div><div class="line">                        selfInterrupt();</div><div class="line">                    failed = <span class="keyword">false</span>;</div><div class="line">                    <span class="keyword">return</span>;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">if</span> (shouldParkAfterFailedAcquire(p, node) &amp;&amp;</div><div class="line">                parkAndCheckInterrupt())</div><div class="line">                interrupted = <span class="keyword">true</span>;</div><div class="line">        &#125;</div><div class="line">    &#125; <span class="keyword">finally</span> &#123;</div><div class="line">        <span class="keyword">if</span> (failed)</div><div class="line">            cancelAcquire(node);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>我们来看看setHeadAndPropagate方法来唤醒后续的节点<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">setHeadAndPropagate</span><span class="params">(Node node, <span class="keyword">int</span> propagate)</span> </span>&#123;</div><div class="line">    Node h = head; <span class="comment">// Record old head for check below</span></div><div class="line">    setHead(node);<span class="comment">//设置当前节点为头结点</span></div><div class="line">    <span class="keyword">if</span> (propagate &gt; <span class="number">0</span> || h == <span class="keyword">null</span> || h.waitStatus &lt; <span class="number">0</span> ||</div><div class="line">        (h = head) == <span class="keyword">null</span> || h.waitStatus &lt; <span class="number">0</span>) &#123;</div><div class="line">        Node s = node.next;</div><div class="line">        <span class="keyword">if</span> (s == <span class="keyword">null</span> || s.isShared())<span class="comment">//后继节点为共享节点，即读锁</span></div><div class="line">            doReleaseShared();<span class="comment">//唤醒后续的节点</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>我们接下来看看唤醒后续节点的doReleaseShared方法<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">doReleaseShared</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">for</span> (;;) &#123;</div><div class="line">        Node h = head;</div><div class="line"></div><div class="line">       </div><div class="line">        <span class="keyword">if</span> (h != <span class="keyword">null</span> &amp;&amp; h != tail) &#123; <span class="comment">// 判断同步等待队列是否为空</span></div><div class="line">            <span class="keyword">int</span> ws = h.waitStatus;</div><div class="line">            <span class="keyword">if</span> (ws == Node.SIGNAL) &#123;</div><div class="line">                <span class="keyword">if</span> (!compareAndSetWaitStatus(h, Node.SIGNAL, <span class="number">0</span>))&#123;</div><div class="line">                    <span class="keyword">continue</span>; <span class="comment">// loop to recheck cases</span></div><div class="line">                &#125;</div><div class="line"></div><div class="line">                <span class="comment">// 唤醒 h 的后继节点（同时将 h 等待状态置为 CANCELED）</span></div><div class="line">                unparkSuccessor(h);</div><div class="line"></div><div class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (ws == <span class="number">0</span> &amp;&amp; </div><div class="line">                !compareAndSetWaitStatus(h, <span class="number">0</span>, Node.PROPAGATE))&#123;</div><div class="line">                <span class="keyword">continue</span>; <span class="comment">// loop on failed CAS</span></div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line"></div><div class="line"></div><div class="line">        <span class="keyword">if</span> (h == head)&#123;</div><div class="line">            <span class="keyword">break</span>;<span class="comment">// loop if head changed</span></div><div class="line">        &#125;     </div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>因为读锁和写锁不同，他是共享锁，他会在队列中唤醒共享锁的所有线程</p>
+<h5 id="释放锁-1"><a href="#释放锁-1" class="headerlink" title="释放锁"></a>释放锁</h5><p>在读完共享变量，就会调用<code>lock.unlock()</code>去释放锁<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">unlock</span><span class="params">()</span> </span>&#123;</div><div class="line">    sync.releaseShared(<span class="number">1</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>在这里会调用releaseShared方法<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">releaseShared</span><span class="params">(<span class="keyword">int</span> arg)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (tryReleaseShared(arg)) &#123;</div><div class="line">        doReleaseShared();</div><div class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>调用tryReleaseShared方法尝试去释放读锁<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">tryReleaseShared</span><span class="params">(<span class="keyword">int</span> unused)</span> </span>&#123;</div><div class="line">        Thread current = Thread.currentThread();</div><div class="line">        <span class="comment">//如果想要释放锁的线程为第一个获取锁的线程</span></div><div class="line">        <span class="keyword">if</span> (firstReader == current) &#123;</div><div class="line">            <span class="comment">//仅获取了一次，则需要将firstReader 设置null，否则 firstReaderHoldCount - 1</span></div><div class="line">            <span class="keyword">if</span> (firstReaderHoldCount == <span class="number">1</span>)</div><div class="line">                firstReader = <span class="keyword">null</span>;</div><div class="line">            <span class="keyword">else</span></div><div class="line">                firstReaderHoldCount--;</div><div class="line">        &#125;</div><div class="line">        <span class="comment">//获取rh对象，并更新“当前线程获取锁的信息”</span></div><div class="line">        <span class="comment">//HoldCounter是一个绑定共享锁的数量和当前线程ID，相当于锁的计数器</span></div><div class="line">        <span class="keyword">else</span> &#123;</div><div class="line">            HoldCounter rh = cachedHoldCounter;</div><div class="line">            <span class="keyword">if</span> (rh == <span class="keyword">null</span> || rh.tid != getThreadId(current))</div><div class="line">                rh = readHolds.get();</div><div class="line">            <span class="keyword">int</span> count = rh.count;</div><div class="line">            <span class="keyword">if</span> (count &lt;= <span class="number">1</span>) &#123;</div><div class="line">                readHolds.remove();</div><div class="line">                <span class="keyword">if</span> (count &lt;= <span class="number">0</span>)</div><div class="line">                    <span class="keyword">throw</span> unmatchedUnlockException();</div><div class="line">            &#125;</div><div class="line">            --rh.count;</div><div class="line">        &#125;</div><div class="line">        <span class="comment">//CAS更新同步状态</span></div><div class="line">        <span class="keyword">for</span> (;;) &#123;</div><div class="line">            <span class="keyword">int</span> c = getState();</div><div class="line">            <span class="keyword">int</span> nextc = c - SHARED_UNIT;<span class="comment">// state读锁状态减一 </span></div><div class="line">            <span class="keyword">if</span> (compareAndSetState(c, nextc))</div><div class="line">                <span class="keyword">return</span> nextc == <span class="number">0</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;</div></pre></td></tr></table></figure></p>
+<p>如果状态更新成功的话就会直接调用doReleaseShared方法去唤醒后续的节点<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">doReleaseShared</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="comment">/*</span></div><div class="line">     * Ensure that a release propagates, even if there are other</div><div class="line">     * in-progress acquires/releases.  This proceeds in the usual</div><div class="line">     * way of trying to unparkSuccessor of head if it needs</div><div class="line">     * signal. But if it does not, status is set to PROPAGATE to</div><div class="line">     * ensure that upon release, propagation continues.</div><div class="line">     * Additionally, we must loop in case a new node is added</div><div class="line">     * while we are doing this. Also, unlike other uses of</div><div class="line">     * unparkSuccessor, we need to know if CAS to reset status</div><div class="line">     * fails, if so rechecking.</div><div class="line">     */</div><div class="line">    <span class="keyword">for</span> (;;) &#123;</div><div class="line">        Node h = head;<span class="comment">//取头结点</span></div><div class="line">        <span class="keyword">if</span> (h != <span class="keyword">null</span> &amp;&amp; h != tail) &#123;</div><div class="line">            <span class="keyword">int</span> ws = h.waitStatus;</div><div class="line">            <span class="keyword">if</span> (ws == Node.SIGNAL) &#123;<span class="comment">//如果头结点状态为signal</span></div><div class="line">                <span class="keyword">if</span> (!compareAndSetWaitStatus(h, Node.SIGNAL, <span class="number">0</span>))</div><div class="line">                    <span class="keyword">continue</span>;            <span class="comment">// loop to recheck cases</span></div><div class="line">                unparkSuccessor(h);<span class="comment">//唤醒线程</span></div><div class="line">            &#125;</div><div class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (ws == <span class="number">0</span> &amp;&amp;</div><div class="line">                     !compareAndSetWaitStatus(h, <span class="number">0</span>, Node.PROPAGATE))<span class="comment">//更新状态为PROPAGATE</span></div><div class="line">                <span class="keyword">continue</span>;                <span class="comment">// loop on failed CAS</span></div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (h == head)                   <span class="comment">// loop if head changed</span></div><div class="line">            <span class="keyword">break</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>锁在并发场景中是比较重量级的，但是随着JDK版本的发展，以及对锁的一步步改进，在很多情况下已经显得并不是那么重，这里通常会与JVM内置锁synchronized来相比，这里借用JDK的描述：Lock 实现提供了比使用 synchronized 方法和语句可获得的更广泛的锁定操作。此实现允许更灵活的结构，可以具有差别很大的属性，可以支持多个相关的 Condition 对象。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://www.cnblogs.com/haolong/p/6268550.html" target="_blank" rel="external">http://www.cnblogs.com/haolong/p/6268550.html</a><br><a href="http://blog.csdn.net/chenssy/article/details/68059443" target="_blank" rel="external">http://blog.csdn.net/chenssy/article/details/68059443</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/java/" rel="tag"># java</a>
+          
+            <a href="/tags/线程/" rel="tag"># 线程</a>
+          
+            <a href="/tags/并发/" rel="tag"># 并发</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/06/27/AQS/" rel="next" title="深入并发包-AQS">
+                <i class="fa fa-chevron-left"></i> 深入并发包-AQS
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/head_images/head.jpg"
+               alt="andy" />
+          <p class="site-author-name" itemprop="name">andy</p>
+           
+              <p class="site-description motion-element" itemprop="description">code and life for simpleness and happiness</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">24</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">24</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/pettyandydog" target="_blank" title="github">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  github
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://stackoverflow.com/users/6618615/andyzhang" target="_blank" title="stackoverflow">
+                  
+                    <i class="fa fa-fw fa-stackoverflow"></i>
+                  
+                  stackoverflow
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Lock"><span class="nav-number">2.</span> <span class="nav-text">Lock</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ReentrantLock"><span class="nav-number">2.1.</span> <span class="nav-text">ReentrantLock</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ReadWriteLock"><span class="nav-number">2.2.</span> <span class="nav-text">ReadWriteLock</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ReentrantReadWriteLock"><span class="nav-number">2.3.</span> <span class="nav-text">ReentrantReadWriteLock</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#WriteLock"><span class="nav-number">2.3.1.</span> <span class="nav-text">WriteLock</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#获取锁"><span class="nav-number">2.3.1.1.</span> <span class="nav-text">获取锁</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#释放锁"><span class="nav-number">2.3.1.2.</span> <span class="nav-text">释放锁</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ReadLock"><span class="nav-number">2.3.2.</span> <span class="nav-text">ReadLock</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#获取锁-1"><span class="nav-number">2.3.2.1.</span> <span class="nav-text">获取锁</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#释放锁-1"><span class="nav-number">2.3.2.2.</span> <span class="nav-text">释放锁</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">andy</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+    
+    <script>
+      var cloudTieConfig = {
+        url: document.location.href, 
+        sourceId: "",
+        productKey: "30f72314fc6a4976a3d168b136e1b5ff",
+        target: "cloud-tie-wrapper"
+      };
+    </script>
+    <script src="https://img1.ws.126.net/f2e/tie/yun/sdk/loader.js"></script>
+  
+
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+</body>
+</html>
